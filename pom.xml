@@ -43,7 +43,34 @@
     			<artifactId>jackson-databind</artifactId>
     			<version>2.12.7.1</version>
 			</dependency>
-	    </dependencies>
+
+			<!-- You can remove this, but you'll lose support for WEBP -->
+
+			<dependency>
+				<groupId>com.twelvemonkeys.imageio</groupId>
+				<artifactId>imageio-metadata</artifactId>
+				<version>3.11.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.twelvemonkeys.imageio</groupId>
+				<artifactId>imageio-core</artifactId>
+				<version>3.11.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.twelvemonkeys.imageio</groupId>
+				<artifactId>imageio-webp</artifactId>
+				<version>3.11.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.twelvemonkeys.imageio</groupId>
+				<artifactId>imageio-common</artifactId>
+				<version>3.11.0</version>
+			</dependency>
+
+		</dependencies>
 	
 	    <build>
 	        <plugins>

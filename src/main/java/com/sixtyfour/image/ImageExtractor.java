@@ -74,7 +74,7 @@ public class ImageExtractor {
                         imgSrc = base+imgSrc;
                     }
                     String iimgSrc = imgSrc.toLowerCase();
-                    if (iimgSrc.endsWith(".jpg") || iimgSrc.endsWith(".jpeg") || iimgSrc.endsWith(".png")) {
+                    if (iimgSrc.endsWith(".jpg") || iimgSrc.endsWith(".jpeg") || iimgSrc.endsWith(".png") || iimgSrc.endsWith(".webp")) {
                         imgSrc = encode(imgSrc);
                         if (!images.contains(imgSrc)) {
                             images.add(imgSrc);

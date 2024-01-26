@@ -14,7 +14,7 @@
 1030 return
 
 2000 rem init screen defaults
-2010 gosub 1000:print "Remote Image Viewer - EgonOlsen71/2024{2*down}"
+2010 gosub 1000:print "{red}Remote {green}Image {light blue}Viewer - {white}EgonOlsen71/2024{2*down}"
 2020 return
 
 10000 rem press any key
@@ -41,7 +41,7 @@
 
 21000 rem save image to disk
 21010 print:print "{down}Target file name: ";:gosub 58000
-21070 n$=b$:if n$="" then 21010
+21070 n$=b$:if n$="" then return
 21075 print chr$(147);"Saving file: "+n$
 21080 open 15,dn%,15,"s0:"+n$: close 15:t$=n$
 21090 for i=1 to len(t$):poke 831+i,asc(mid$(t$,i,1)):next
@@ -110,6 +110,7 @@
 40450 print mm$:return
 
 40500 rem select image file
+40505 if pu%=0 then return
 40510 print "{down}Enter image number: ";:gosub 58000
 40520 iu%=val(b$):if iu%<0 then iu%=0
 40530 if iu%>=pu% then iu%=pu%-1
@@ -232,8 +233,7 @@
 56000 rem wic64 error?
 56010 if peek(171)<>0 then return
 56030 print:print "Communication error!":print
-56040 print "Either there's no wic64 present"
-56050 print "or the connection has timed out!"
+56040 print "Check your WIC64!"
 56060 goto 60000
 
 56200 rem load error
@@ -253,7 +253,9 @@
 57022 print "If you enter a page URL instead of an"
 57024 print "image URL, you can choose between the"
 57026 print "first 22 unique images on that page."
-57028 print "{down}Type x to exit program!{2*down}"
+57027 print "{down}Type {95} for underscore, RETURN to"
+57028 print "repeat the last URL and x to exit"
+57030 print "the program!{2*down}"
 57050 poke 646,1:print "Image URL: ";:gosub 58000:iu$=b$
 57060 if iu$="" then 57500
 57065 ou$ = iu$
@@ -275,6 +277,7 @@
 58032 if (a%>127 and a%<193) then 58020
 58034 if a%>218 then 58020
 58060 print chr$(20);:if a%=13 then a$=""
+58065 if a%=95 then a$=chr$(164)
 58070 b$=b$+a$:print a$;:if len(b$)<160 and a%<>13 then 58015
 58080 return
 

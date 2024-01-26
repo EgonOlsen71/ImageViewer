@@ -69,7 +69,7 @@ public class ImageViewer extends HttpServlet {
 		}
 
 		Logger.log("Dithering is set to "+dithy);
-		if (!file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".jpeg")) {
+		if (!file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".jpeg") && !file.endsWith(".webp")) {
 			Logger.log("Unsupported file type: " + file);
 			Logger.log("Trying to extract images from page...");
 			extractImages(file, os);
@@ -80,7 +80,9 @@ public class ImageViewer extends HttpServlet {
 		ServletConfig sc = getServletConfig();
 		String path = sc.getInitParameter("imagepath");
 
-		String targetFile = UUID.randomUUID()+".koa";
+		String ext = file.substring(file.lastIndexOf("."));
+
+		String targetFile = UUID.randomUUID()+ext;
 		File pathy = new File(path);
 		pathy.mkdirs();
 		File bin = new File(pathy, targetFile);
@@ -99,14 +101,20 @@ public class ImageViewer extends HttpServlet {
 
 		String fileName = bin.toString();
 		String targetFileName = fileName+".koa";
+		File targetBin = new File(targetFileName);
 		try {
 			KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, false);
 		} catch(Exception e) {
 			Logger.log("Failed to convert image: "+file, e);
-			printError(os, "Failed to convert image: "+e.getMessage());
+			if (e.getMessage()!=null) {
+				printError(os, e.getMessage());
+			} else {
+				printError(os, "Failed to convert image!");
+			}
+			delete(targetBin);
+			delete(bin);
 			return;
 		}
-		File targetBin = new File(targetFileName);
 
 		try (FileInputStream fis = new FileInputStream(targetBin)) {
 			response.setContentType("application/octet-stream");
