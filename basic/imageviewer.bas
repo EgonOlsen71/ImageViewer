@@ -91,8 +91,11 @@
 39000 rem low/highbyte. Value in tb, result in lb% and hb%
 39010 lb%=tb and 255:hb%=int(tb/256):return
 
+39500 rem clear file list
+39510 for i=0 to 30:pu$(i)="":next:return
+
 40000 rem extract image list from ram
-40005 for i=0 to 30:pu$(i)="":next:pu%=0
+40005 gosub 39500:pu%=0
 40010 mp=bu+202:of=3:poke 646,7:print chr$(147);"Select image file:"
 40020 br%=peek(mp):if br%=0 then gosub 40500:return
 40030 gosub 42000:ke$=str$(pu%)
@@ -110,7 +113,7 @@
 40510 print "{down}Enter image number: ";:gosub 58000
 40520 iu%=val(b$):if iu%<0 then iu%=0
 40530 if iu%>=pu% then iu%=pu%-1
-40540 iu$=pu$(iu%):er%=2:return
+40540 iu$=pu$(iu%):er%=2:gosub 39500:return
 
 41500 rem send and receive data
 41510 poke 171,tt%:sys us,bu
@@ -146,7 +149,7 @@
 
 44500 rem contruct download url
 44510 ur$=gu$+"ImageViewer?file="+iu$+"&dither="+ds$(ds%)
-44515 if ar% then ur$=ur$+"&ar=true"
+44515 if len(ur$)<245 then if ar% then ur$=ur$+"&ar=true"
 44520 rem print ur$
 44530 return
 
@@ -252,9 +255,15 @@
 57026 print "first 22 unique images on that page."
 57028 print "{down}Type x to exit program!{2*down}"
 57050 poke 646,1:print "Image URL: ";:gosub 58000:iu$=b$
-57060 if iu$="" then 57010
-57065 if iu$="x" then 60000
+57060 if iu$="" then 57500
+57065 ou$ = iu$
+57068 if iu$="x" then 60000
 57070 return
+
+57500 rem fill url with old one, if present
+57510 if ou$="" then goto 57000
+57520 iu$=ou$:print iu$
+57530 return
 
 58000 rem input routine
 58010 b$=""
@@ -288,7 +297,7 @@
 62020 tt%=64:bu=24374:ui=49152
 62030 ur=49155:us=49152+18:ug=49152+21
 62040 uc=49152+24
-62050 dim pu$(30):pu%=0
+62050 dim pu$(30):pu%=0:ou$=""
 62060 gu$="":ll$=chr$(0)
 62065 dim bv$(1):bv$(0)="no":bv$(1)="yes":ar%=1
 62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0":ds%=1
