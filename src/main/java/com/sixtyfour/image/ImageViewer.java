@@ -1,11 +1,18 @@
 package com.sixtyfour.image;
 
 import com.sixtyfour.petscii.KoalaConverter;
+import com.sixtyfour.petscii.TargetDimensions;
 import com.sixtyfour.petscii.Vic2Colors;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -39,8 +46,9 @@ public class ImageViewer extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		ServletOutputStream os = response.getOutputStream();
-		String file = request.getParameter("file");
+		String file = URLDecoder.decode(request.getParameter("file"), "UTF-8");
 		String dither = request.getParameter("dither");
+		boolean keepRatio = Boolean.parseBoolean(request.getParameter("ar"));
 		if (file.contains("..") || file.contains("\\") || file.startsWith("/")) {
 			Logger.log("Invalid file name: " + file);
 			printError(os, "Invalid file name!");
@@ -56,15 +64,16 @@ public class ImageViewer extends HttpServlet {
 		}
 		dithy = Math.min(1, Math.max(0, dithy));
 
-		Logger.log("Dithering is set to "+dithy);
-		if (!file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".koa") && !file.endsWith(".jpeg")) {
-			Logger.log("Unsupported file type: " + file);
-			printError(os, "Unsupported file type!");
-			return;
-		}
-
 		if (!file.toLowerCase().startsWith("http")) {
 			file = "https://"+file;
+		}
+
+		Logger.log("Dithering is set to "+dithy);
+		if (!file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".jpeg")) {
+			Logger.log("Unsupported file type: " + file);
+			Logger.log("Trying to extract images from page...");
+			extractImages(file, os);
+			return;
 		}
 
 		Logger.log("Downloading image: " + file);
@@ -90,7 +99,13 @@ public class ImageViewer extends HttpServlet {
 
 		String fileName = bin.toString();
 		String targetFileName = fileName+".koa";
-		KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, false);
+		try {
+			KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, false);
+		} catch(Exception e) {
+			Logger.log("Failed to convert image: "+file, e);
+			printError(os, "Failed to convert image: "+e.getMessage());
+			return;
+		}
 		File targetBin = new File(targetFileName);
 
 		try (FileInputStream fis = new FileInputStream(targetBin)) {
@@ -108,6 +123,68 @@ public class ImageViewer extends HttpServlet {
 		}
 		os.flush();
 		Logger.log("Download and conversion finished!");
+	}
+
+	private void extractImages(String file, ServletOutputStream os) {
+		List<String> images;
+		try {
+			images = ImageExtractor.extractImages(file);
+		}  catch(FileNotFoundException e) {
+			Logger.log("URL not found: "+file, e);
+			printError(os, "URL not found!");
+			return;
+		} catch(UnknownHostException e) {
+			Logger.log("Unknown host: "+file, e);
+			printError(os, "Unknown host!");
+			return;
+		} catch(Exception e) {
+			Logger.log("Failed to extract images from "+file, e);
+			printError(os, "No valid images found!");
+			return;
+		}
+
+		if (images==null) {
+			printError(os, "No valid images found!");
+			return;
+		}
+		images = images.stream().filter(p -> p.length()<176).collect(Collectors.toList());
+		if (images.isEmpty()) {
+			printError(os, "No valid images found!");
+			return;
+		}
+
+		//
+		/*
+			Convert image list into bytes...Format is:
+			1 1
+			length - bytes
+			length - bytes
+			...
+			0
+		 */
+		if (images!=null && images.size()>22) {
+			images = images.subList(0, 22);
+			Logger.log("Limited image list to "+images.size());
+		}
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			bos.write(new byte[]{1, 1}); // Flag image list to C64
+
+			byte[] len = new byte[1];
+			for (String img:images) {
+				byte[] txt = img.getBytes(StandardCharsets.US_ASCII);
+				len[0] = (byte) (txt.length & 0xff);
+				bos.write(len);
+				bos.write(txt);
+			}
+			len[0]=0;
+			bos.write(len);
+			ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+			bis.transferTo(os);
+		} catch(Exception e) {
+			Logger.log("Failed to process image list!", e);
+			printError(os, "Failed to process images!");
+		}
 	}
 
 	private void delete(File bin) {
