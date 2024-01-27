@@ -110,7 +110,8 @@
 
 40400 rem print file name
 40410 mm$=mg$:if len(mm$)<=32 then 40450
-40420 mm$=left$(mm$,10)+"....."+right$(mm$,18)
+40415 co%=8:if mid$(mm$,5,1)="s" then co%=9
+40420 mm$=mid$(mm$,co%,7)+"..."+right$(mm$,25)
 40450 print mm$:return
 
 40500 rem select image file
