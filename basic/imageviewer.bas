@@ -1,4 +1,4 @@
-0 rem imageviewer
+0 rem Remote Image Viewer / EgonOlsen71 / 2024
 5 gosub 1000:gosub 56500:gosub 62000:gosub 45800
 10 gosub 57000
 20 gosub 30000:if iu$="" then 10
@@ -27,8 +27,9 @@
 20020 print "F1 - Show loaded image"
 20025 print "F3 - Show directory"
 20035 print "F4 - Change target drive:";dn%
+20036 print "F5 - Koala style file names: ";bv$(ks%)
 20040 print "F8 - Back to load menu"
-20045 print "{down}F7 - Save image"
+20045 print "{down}F7/RETURN - Save image"
 20050 get a$:if a$="" then 20050
 20060 a%=asc(a$):if a%=133 then gosub 52000:goto 20000
 20070 if a%=136 or a%=13 then gosub 21000:goto 20000
@@ -37,11 +38,14 @@
 20085 if a%=88 then 60000
 20086 if a%=73 then gosub 23000:goto 20000
 20088 if a%=134 then gosub 59000:goto 20000
-20090 goto 20050
+20090 if a%=135 then ks%=(ks%+1) and 1:goto 20000
+20100 goto 20050
 
 21000 rem save image to disk
 21010 print:print "{down}Target file name: ";:gosub 58000
-21070 n$=b$:if n$="" then return
+21020 n$=b$:if n$="" then return
+21025 if ks%=0 then 21075
+21030 n$="{129}pic a "+left$(b$+"{8*space}", 8)
 21075 print chr$(147);"Saving file: "+n$
 21080 open 15,dn%,15,"s0:"+n$: close 15:t$=n$
 21090 for i=1 to len(t$):poke 831+i,asc(mid$(t$,i,1)):next
@@ -71,7 +75,7 @@
 30020 print "F1 - Dithering: ";ds$(ds%);"%"
 30030 print "F3 - Keep aspect ratio: ";bv$(ar%)
 30045 print "F8 - Select new image{down}"
-30046 print "F7 - Load image"
+30046 print "F7/RETURN - Load image"
 30050 get a$:if a$="" then 30050
 30060 a%=asc(a$):if a%=133 then gosub 31000:goto 30000
 30070 if a%=134 then gosub 31500:goto 30000
@@ -97,7 +101,7 @@
 40000 rem extract image list from ram
 40005 gosub 39500:pu%=0
 40010 mp=bu+202:of=3:poke 646,7:print chr$(147);"Select image file:"
-40020 br%=peek(mp):if br%=0 then gosub 40500:return
+40020 br%=peek(mp):if br%=0 or pu%>21 then gosub 40500:return
 40030 gosub 42000:ke$=str$(pu%)
 40040 poke 646,7:print right$(ke$,len(ke$)-1);"- ";
 40050 poke 646,1: gosub 40400:br%=br%+1
@@ -114,7 +118,7 @@
 40510 print "{down}Enter image number: ";:gosub 58000
 40520 iu%=val(b$):if iu%<0 then iu%=0
 40530 if iu%>=pu% then iu%=pu%-1
-40540 iu$=pu$(iu%):er%=2:gosub 39500:return
+40540 iu$=pu$(iu%):er%=2:return
 
 41500 rem send and receive data
 41510 poke 171,tt%:sys us,bu
@@ -136,13 +140,14 @@
 42100 return
 
 43000 rem fatal error
-43010 print "Error":print:print mg$
+43010 print:print mg$
 43020 gosub 10000
 43030 er%=1:return
 
 44000 rem download file
-44005 gosub 55000
-44010 print chr$(147);"Downloading image...";
+44005 print chr$(147);"Loading image...";
+44006 if pu%>1 then poke 646,7:print:print "{down}Press CRSR left/right to switch image...":poke 646,1
+44010 gosub 55000
 44025 gosub 44500
 44030 gosub 46500:gosub 41500:if iu$="" then er%=1:return
 44050 gosub 45000
@@ -177,8 +182,8 @@
 46030 return
 
 46500 rem store url in memory
-46510 lm=len(ur$):ls=lm-4:for t=1 to lm
-46520 b3=bu+3:dd%=asc(mid$(ur$,t,1))
+46510 lm=len(ur$):b3=bu+3:for t=1 to lm
+46520 dd%=asc(mid$(ur$,t,1))
 46540 gosub 47300
 46560 poke b3+t,dd%
 46570 next:gosub 47000
@@ -193,9 +198,9 @@
 47110 poke s,lb%:poke s+1,hb%:return
 
 47300 rem convert ascii-petscii
-47310 if dd%>=65 then if dd%<=90 then dd%=dd%+32:return
-47320 if dd%>=97 then if dd%<=122 then dd%=dd%-32:return
-47330 if dd%>=193 then if dd%<=218 then dd%=dd%-128:return
+47310 if dd%>=97 and dd%<=122 then dd%=dd%-32:return
+47320 if dd%>=65 and dd%<=90 then dd%=dd%+32:return
+47330 if dd%>=193 and dd%<=218 then dd%=dd%-128:return
 47335 if dd%=95 then dd%=164:return
 47336 if dd%=164 then dd%=95:return
 47340 return
@@ -219,15 +224,27 @@
 52110 poke 53272,ol%
 52130 poke 53265,peek(53265) and 223
 52140 poke 53270,peek(53270) and 239
-52150 poke 646,1:print chr$(147);:return
+52150 poke 646,1:print chr$(147);
+52152 if pu%>0 then if a$="{left}" or a$="{right}" then gosub 52160:if er%=0 then goto 52000
+52154 return
+52160 rem switch image
+52170 if a$="{left}" then iu%=iu%-1:goto 52180
+52175 iu%=iu%+1
+52180 if iu%<0 then iu%=0:gosub 53000:return
+52190 if iu%=pu% then iu%=pu%-1:gosub 53000:return
+52200 iu$=pu$(iu%):er%=0:gosub 1000:gosub 44000:return
+
+53000 rem flash screen
+53010 tx=ti:oc%=peek(53280)
+53020 poke 53280,(peek(53280)+1) and 3
+53030 if ti-tx<30 then 53020
+53040 poke 53280,oc%:return
 
 55000 rem init wic64
-55005 print chr$(147);"Initializing wic64...";
 55010 sys ui: rem init
 55020 sys uc: rem check presence
 55030 gosub 56000
 55035 poke bu,87:poke bu+3,15: rem "w" mode, http get
-55040 print "ok"
 55050 return
 
 56000 rem wic64 error?
@@ -248,7 +265,7 @@
 56530 return
 
 57000 rem select image to load
-57010 gosub 2000:poke 646, 15
+57010 gosub 2000:poke 646, 15:gosub 39500:pu%=0
 57020 print "Enter image URL. You can omit https://!"
 57022 print "If you enter a page URL instead of an"
 57024 print "image URL, you can choose between the"
@@ -298,9 +315,8 @@
 
 62000 rem init
 62020 tt%=64:bu=24374:ui=49152
-62030 ur=49155:us=49152+18:ug=49152+21
-62040 uc=49152+24
-62050 dim pu$(30):pu%=0:ou$=""
+62030 ur=49155:us=49152+18:ug=49152+21:uc=49152+24
+62050 dim pu$(22):pu%=0:ou$="":ks%=1
 62060 gu$="":ll$=chr$(0)
 62065 dim bv$(1):bv$(0)="no":bv$(1)="yes":ar%=1
 62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0":ds%=1

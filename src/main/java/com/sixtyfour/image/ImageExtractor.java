@@ -52,7 +52,10 @@ public class ImageExtractor {
         int domainEnd1 = findDomainEnd("?", url, protoPos);
         int domainEnd2 = findDomainEnd(";", url, protoPos);
         int domainEnd = Math.min(url.length(), Math.min(domainEnd0, Math.min(domainEnd1, domainEnd2)));
-        String base = url.substring(0, domainEnd);
+        int urlEnd = Math.min(url.length(), Math.min(domainEnd1, domainEnd2));
+        String domain =  url.substring(0, domainEnd);
+        String base = url.substring(0, urlEnd);
+        if (domainEnd1!=-1)
         if (pos!=-1) {
             String sbase = getSourceAttribute(lhtml, html, pos, protocol, "href");
             if (sbase!=null) {
@@ -62,7 +65,11 @@ public class ImageExtractor {
         if (!base.endsWith("/")) {
             base+="/";
         }
+        if (domain.endsWith("/")) {
+            domain = domain.substring(0, domain.length()-1);
+        }
         Logger.log("Base is: "+base);
+        Logger.log("Domain is: "+domain);
 
         pos = -1;
         do {
@@ -71,7 +78,11 @@ public class ImageExtractor {
                 String imgSrc = getSourceAttribute(lhtml, html, pos, protocol, "src");
                 if (imgSrc!=null) {
                     if (!imgSrc.startsWith("http")) {
-                        imgSrc = base+imgSrc;
+                        if (imgSrc.startsWith("/")) {
+                            imgSrc = domain+imgSrc;
+                        } else {
+                            imgSrc = base+imgSrc;
+                        }
                     }
                     String iimgSrc = imgSrc.toLowerCase();
                     if (iimgSrc.endsWith(".jpg") || iimgSrc.endsWith(".jpeg") || iimgSrc.endsWith(".png") || iimgSrc.endsWith(".webp")) {
