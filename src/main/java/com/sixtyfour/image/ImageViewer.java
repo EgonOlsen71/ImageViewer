@@ -9,9 +9,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
@@ -34,6 +32,12 @@ public class ImageViewer extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	private static LinkedHashMap<String, String> urlShortener = new LinkedHashMap<>() {
+		protected boolean removeEldestEntry(Map.Entry eldest) {
+			return this.size()>2000;
+		}
+	};
+
 	public ImageViewer() {
 		// TODO Auto-generated constructor stub
 	}
@@ -47,6 +51,12 @@ public class ImageViewer extends HttpServlet {
 			throws IOException {
 		ServletOutputStream os = response.getOutputStream();
 		String file = URLDecoder.decode(request.getParameter("file"), "UTF-8");
+
+		if (urlShortener.containsKey(file)) {
+			Logger.log("Replacing URL "+file+ "with "+urlShortener.get(file));
+			file = urlShortener.get(file);
+		}
+
 		String dither = request.getParameter("dither");
 		boolean keepRatio = Boolean.parseBoolean(request.getParameter("ar"));
 		if (file.contains("..") || file.contains("\\") || file.startsWith("/")) {
@@ -92,10 +102,12 @@ public class ImageViewer extends HttpServlet {
 		} catch(java.io.FileNotFoundException e) {
 			Logger.log("File not found: "+file, e);
 			printError(os, "Image not found!");
+			delete(bin);
 			return;
 		} catch(Exception e) {
 			Logger.log("Failed to load image: "+file, e);
 			printError(os, "Failed to load image!");
+			delete(bin);
 			return;
 		}
 
@@ -105,14 +117,14 @@ public class ImageViewer extends HttpServlet {
 		try {
 			KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, false);
 		} catch(Exception e) {
+			delete(targetBin);
+			delete(bin);
 			Logger.log("Failed to convert image: "+file, e);
 			if (e.getMessage()!=null) {
 				printError(os, e.getMessage());
 			} else {
 				printError(os, "Failed to convert image!");
 			}
-			delete(targetBin);
-			delete(bin);
 			return;
 		}
 
@@ -155,7 +167,18 @@ public class ImageViewer extends HttpServlet {
 			printError(os, "No valid images found!");
 			return;
 		}
-		images = images.stream().filter(p -> p.length()<176).collect(Collectors.toList());
+
+		for (int i=0; i<images.size(); i++) {
+			String image = images.get(i);
+			if (image.length()<170) {
+				continue;
+			}
+			String newImage = "https://jpct.de/"+UUID.randomUUID()+".short";
+			Logger.log("URL too long, transmitting a short form instead!");
+			urlShortener.put(newImage, image);
+			images.set(i, newImage);
+		}
+
 		if (images.isEmpty()) {
 			printError(os, "No valid images found!");
 			return;
