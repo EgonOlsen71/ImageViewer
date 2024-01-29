@@ -49,6 +49,7 @@
 23020 gosub 11000:return
 
 52000 rem display loaded image
+52005 poke 43,lb%:poke 44,hb%
 52010 poke 56576,(peek(56576) and 252) or 2
 52020 ol%=peek(53272):poke 53272,120
 52030 poke 53270,216
@@ -71,7 +72,9 @@
 52154 return
 
 54000 rem load file
-54010 lf%=1:load ff$(cs%),dn%,1
+54002 lb%=peek(43):hb%=peek(44)
+54005 poke 43,0:poke 44,96
+54010 lf%=1:load ff$(cs%),dn%,0
 54020 run
 
 55000 rem select file to load
@@ -90,7 +93,7 @@
 56090 if a%=145 then if cs%-2>=0 then os%=cs%:cs%=cs%-2:goto 56000
 56100 if a%=29 then if cs%+1><fc% then os%=cs%:cs%=cs%+1:goto 56000
 56110 if a%=157 then if cs%-1>=0 then os%=cs%:cs%=cs%-1:goto 56000
-56120 if a%=13 then er%=0:gosub 56800:if er%=0 then 54000
+56120 if a%=13 then 54000
 56130 goto 56050
 
 56500 rem calculate down and tab
@@ -98,15 +101,6 @@
 56520 dc%=dc%/2+2
 56530 dp$=left$("{25*down}", dc%)
 56540 print chr$(19);tab(ta%);dp$;:return
-
-56800 rem check actual file format
-56810 open 2,dn%,2,ff$(cs%)+",p,r"
-56820 get#2,a$,b$:close 2
-56825 fs=asc(a$+ll$)+256*asc(b$+ll$)
-56827 if fs=24576 then return
-56828 print chr$(19);"{39*space}";
-56830 poke 646,2:print chr$(19);"NOT A VALID KOALA IMAGE: ";fs:poke 646,1:er%=1
-56840 return
 
 57000 rem process file name
 57005 if len(ff$)<2 then 57060
