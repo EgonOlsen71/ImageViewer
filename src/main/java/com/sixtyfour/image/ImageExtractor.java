@@ -4,10 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
- *  Extracts images from a website
+ * Extracts images from a website
  *
  * @author EgonOlsen
  */
@@ -17,12 +19,12 @@ public class ImageExtractor {
         List<String> images = new ArrayList<>();
         String html;
         String lhtml;
-        long start =0;
+        long start;
 
         try (InputStream input = new URL(url).openStream(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             input.transferTo(bos);
-            if (bos.size()>2048*1024) {
-                Logger.log("Page too large: "+url);
+            if (bos.size() > 2048 * 1024) {
+                Logger.log("Page too large: " + url);
                 return null;
             }
             start = System.currentTimeMillis();
@@ -33,55 +35,55 @@ public class ImageExtractor {
                 html = bos.toString("Windows-1252");
                 lhtml = html.toLowerCase(Locale.ENGLISH);
             }
-        } catch(java.io.FileNotFoundException e) {
-            Logger.log("URL not found: "+url, e);
+        } catch (java.io.FileNotFoundException e) {
+            Logger.log("URL not found: " + url, e);
             throw e;
-        } catch(Exception e) {
-            Logger.log("Failed to process url: "+url, e);
+        } catch (Exception e) {
+            Logger.log("Failed to process url: " + url, e);
             throw e;
         }
 
         int pos = lhtml.indexOf("<base ");
 
         String protocol = "https://";
-        if (url.indexOf("://")!=-1) {
-            protocol = url.substring(0, url.indexOf("://")+3);
+        if (url.indexOf("://") != -1) {
+            protocol = url.substring(0, url.indexOf("://") + 3);
         }
-        int protoPos = url.indexOf("://")+3;
+        int protoPos = url.indexOf("://") + 3;
         int domainEnd0 = findDomainEnd("/", url, protoPos);
         int domainEnd1 = findDomainEnd("?", url, protoPos);
         int domainEnd2 = findDomainEnd(";", url, protoPos);
         int domainEnd = Math.min(url.length(), Math.min(domainEnd0, Math.min(domainEnd1, domainEnd2)));
         int urlEnd = Math.min(url.length(), Math.min(domainEnd1, domainEnd2));
-        String domain =  url.substring(0, domainEnd);
+        String domain = url.substring(0, domainEnd);
         String base = url.substring(0, urlEnd);
-        if (domainEnd1!=-1)
-        if (pos!=-1) {
-            String sbase = getSourceAttribute(lhtml, html, pos, protocol, "href");
-            if (sbase!=null) {
-                base = sbase;
+        if (domainEnd1 != -1)
+            if (pos != -1) {
+                String sbase = getSourceAttribute(lhtml, html, pos, protocol, "href");
+                if (sbase != null) {
+                    base = sbase;
+                }
             }
-        }
         if (!base.endsWith("/")) {
-            base+="/";
+            base += "/";
         }
         if (domain.endsWith("/")) {
-            domain = domain.substring(0, domain.length()-1);
+            domain = domain.substring(0, domain.length() - 1);
         }
-        Logger.log("Base is: "+base);
-        Logger.log("Domain is: "+domain);
+        Logger.log("Base is: " + base);
+        Logger.log("Domain is: " + domain);
 
         pos = -1;
         do {
-            pos = lhtml.indexOf("<img ", pos+1);
-            if (pos!=-1) {
+            pos = lhtml.indexOf("<img ", pos + 1);
+            if (pos != -1) {
                 String imgSrc = getSourceAttribute(lhtml, html, pos, protocol, "src");
-                if (imgSrc!=null) {
+                if (imgSrc != null) {
                     if (!imgSrc.startsWith("http")) {
                         if (imgSrc.startsWith("/")) {
-                            imgSrc = domain+imgSrc;
+                            imgSrc = domain + imgSrc;
                         } else {
-                            imgSrc = base+imgSrc;
+                            imgSrc = base + imgSrc;
                         }
                     }
                     String iimgSrc = imgSrc.toLowerCase();
@@ -93,10 +95,10 @@ public class ImageExtractor {
                     }
                 }
             }
-        } while(pos!=-1);
+        } while (pos != -1);
 
-        Logger.log("Page parsed in "+(System.currentTimeMillis()-start)+"ms");
-        Logger.log("Images found: "+ images.size());
+        Logger.log("Page parsed in " + (System.currentTimeMillis() - start) + "ms");
+        Logger.log("Images found: " + images.size());
         return images;
     }
 
@@ -104,41 +106,41 @@ public class ImageExtractor {
         try {
             //@todo improve this hack...
             return URLEncoder.encode(imgSrc, "UTF-8").replace("%3A", ":").replace("%2F", "/").replace("%3B", ";").replace("%26", "&").replace("%3F", "?");
-        } catch(Exception e) {
+        } catch (Exception e) {
             return imgSrc;
         }
     }
 
     private static int findDomainEnd(String endMarker, String url, int pos) {
         int domainEnd = url.indexOf(endMarker, pos);
-        if (domainEnd==-1) {
-            domainEnd=url.length();
+        if (domainEnd == -1) {
+            domainEnd = url.length();
         }
         return domainEnd;
     }
 
     private static String getSourceAttribute(String lhtml, String html, int pos, String protocol, String attribute) {
-        String src=null;
+        String src = null;
         int endPos0 = lhtml.indexOf("/>", pos);
         int endPos1 = lhtml.indexOf(">", pos);
         int endPos = endPos1;
-        if (endPos0!=-1 && endPos0<endPos1) {
+        if (endPos0 != -1 && endPos0 < endPos1) {
             endPos = endPos0;
         }
-        int srcPos = lhtml.indexOf(attribute+"=", pos);
-        if (srcPos!=-1 && srcPos<endPos && endPos< pos+300) {
+        int srcPos = lhtml.indexOf(attribute + "=", pos);
+        if (srcPos != -1 && srcPos < endPos && endPos < pos + 300) {
             int srcEndPos = lhtml.indexOf(" ", srcPos);
-            if (srcEndPos==-1 || srcEndPos>endPos) {
+            if (srcEndPos == -1 || srcEndPos > endPos) {
                 srcEndPos = endPos;
             }
-            src = html.substring(srcPos+attribute.length()+1, srcEndPos);
+            src = html.substring(srcPos + attribute.length() + 1, srcEndPos);
             src = src.replace("\"", "").replace("'", "");
             src = src.trim();
         }
 
-        if (src!=null) {
+        if (src != null) {
             if (src.startsWith("//")) {
-                src = protocol+src.substring(2);
+                src = protocol + src.substring(2);
             }
         }
 
