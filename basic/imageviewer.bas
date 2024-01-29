@@ -162,7 +162,7 @@
 
 45000 rem check for server error
 45010 va%=peek(bu+200)+256*peek(bu+201)
-45020 if va%<>0 and va%<>257 then return
+45020 if va%<>0 then if va%<>257 then return
 45030 if va%=0 then of=2:br%=br%-2:gosub 42000:return
 45035 gosub 40000
 45040 return
@@ -199,9 +199,9 @@
 47110 poke s,lb%:poke s+1,hb%:return
 
 47300 rem convert ascii-petscii
-47310 if dd%>=97 and dd%<=122 then dd%=dd%-32:return
-47320 if dd%>=65 and dd%<=90 then dd%=dd%+32:return
-47330 if dd%>=193 and dd%<=218 then dd%=dd%-128:return
+47310 if dd%>=97 then if dd%<=122 then dd%=dd%-32:return
+47320 if dd%>=65 then if dd%<=90 then dd%=dd%+32:return
+47330 if dd%>=193 then if dd%<=218 then dd%=dd%-128:return
 47335 if dd%=95 then dd%=164:return
 47336 if dd%=164 then dd%=95:return
 47340 return
@@ -291,12 +291,12 @@
 58020 get a$:if a$="" then 58020
 58021 a%=asc(a$)
 58022 if (a%=20 or a%=157) then if b$<>"" then b$=left$(b$, len(b$)-1):print chr$(20);chr$(20);:goto 58015
-58030 if a%<32 and a%<>13 then 58020
-58032 if (a%>127 and a%<193) then 58020
+58030 if a%<32 then if a%<>13 then 58020
+58032 if a%>127 then if a%<193 then 58020
 58034 if a%>218 then 58020
 58060 print chr$(20);:if a%=13 then a$=""
 58065 if a%=95 then a$=chr$(164)
-58070 b$=b$+a$:print a$;:if len(b$)<160 and a%<>13 then 58015
+58070 b$=b$+a$:print a$;:if len(b$)<160 then if a%<>13 then 58015
 58080 return
 
 59000 rem print directory
