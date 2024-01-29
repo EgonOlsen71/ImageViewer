@@ -46,7 +46,7 @@
 21020 n$=b$:if n$="" then return
 21025 if ks%=0 then 21075
 21030 n$="{129}pic a "+left$(b$+"{8*space}", 8)
-21075 print chr$(147);"Saving file: "+n$
+21075 print chr$(147);"Saving file: ";chr$(34);n$;chr$(34)
 21080 open 15,dn%,15,"s0:"+n$: close 15:t$=n$
 21090 for i=1 to len(t$):poke 831+i,asc(mid$(t$,i,1)):next
 21100 poke 782,3: poke 781,64:poke 780,len(t$):sys 65469:poke 780,1

@@ -3,3 +3,6 @@
 /basic/build/++imageviewer.prg.il
 /basic/build/++imageviewer.prg.nl
 /target/
+/basic/build/++localviewer.prg.dbg
+/basic/build/++localviewer.prg.il
+/basic/build/++localviewer.prg.nl
