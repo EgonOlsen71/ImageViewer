@@ -74,6 +74,7 @@
 54000 rem load file
 54002 lb%=peek(43):hb%=peek(44)
 54005 poke 43,0:poke 44,96
+54006 rem hack, to use LOAD but with images not starting at $6000
 54010 lf%=1:load ff$(cs%),dn%,0
 54020 run
 
