@@ -7,7 +7,9 @@ import java.net.URLEncoder;
 import java.util.*;
 
 /**
+ *  Extracts images from a website
  *
+ * @author EgonOlsen
  */
 public class ImageExtractor {
 

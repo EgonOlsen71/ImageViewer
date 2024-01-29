@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet to download an image
+ * Servlet to download an image/image list
  * 
  * @author EgonOlsen
  */
