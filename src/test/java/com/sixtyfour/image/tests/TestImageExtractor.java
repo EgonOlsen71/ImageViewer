@@ -7,7 +7,9 @@ import java.util.List;
 public class TestImageExtractor {
 
     public static void main(String[] args) throws Exception {
-        List<String> images = ImageExtractor.extractImages("https://spiegel.de");
+        //List<String> images = ImageExtractor.extractImages("https://spiegel.de");
+        //listImages(images);
+        List<String> images = ImageExtractor.extractImages("https://buecher.schluetersche.de/de/veterinaermedizin/gross-nutztier/");
         listImages(images);
         /*
         images = ImageExtractor.extractImages("https://service.schluetersche.de");

@@ -35,6 +35,7 @@ public class ImageExtractor {
                 html = bos.toString("Windows-1252");
                 lhtml = html.toLowerCase(Locale.ENGLISH);
             }
+            Logger.log("HTML size: "+html.length()+" bytes");
         } catch (java.io.FileNotFoundException e) {
             Logger.log("URL not found: " + url, e);
             throw e;
@@ -87,7 +88,7 @@ public class ImageExtractor {
                         }
                     }
                     String iimgSrc = imgSrc.toLowerCase();
-                    if (iimgSrc.endsWith(".jpg") || iimgSrc.endsWith(".jpeg") || iimgSrc.endsWith(".png") || iimgSrc.endsWith(".webp")) {
+                    if (iimgSrc.contains(".jpg") || iimgSrc.contains(".jpeg") || iimgSrc.contains(".png") || iimgSrc.contains(".webp")) {
                         imgSrc = encode(imgSrc);
                         if (!images.contains(imgSrc)) {
                             images.add(imgSrc);
