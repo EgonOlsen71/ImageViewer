@@ -81,7 +81,7 @@ public class ImageViewer extends HttpServlet {
         }
 
         Logger.log("Dithering is set to " + dithy);
-        if (!file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".jpeg") && !file.endsWith(".webp")) {
+        if (!file.contains(".png") && !file.contains(".jpg") && !file.contains(".jpeg") && !file.contains(".webp")) {
             Logger.log("Unsupported file type: " + file);
             if (file.contains(".")) {
                 Logger.log("Trying to extract images from page...");
