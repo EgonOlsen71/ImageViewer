@@ -1,6 +1,14 @@
 # Remote Image Viewer
 An image viewer for the WiC64
 
+Download of the C64 application: https://github.com/EgonOlsen71/ImageViewer/blob/main/basic/build/imageviewer.d64
+
+To simply use the C64 application, you don't need to host and run the server yourself. The application will use an existing server if you don't modify it.
+
+The application is also part of the WiC64 portal.
+
+
+
 This project consists of two parts:
 
 * an application that runs on the C64
@@ -12,3 +20,9 @@ The C64 application can take either an image URL, a weg page URL or some search 
 
 
 You can save the images in Koala Painter format as well. There's also a localviewer.prg application included that doesn't require a WiC64 to work. It's sole purpose is to display the saved Koala Painter images.
+
+
+
+To build the server, you need the Petsciiator project as well https://github.com/EgonOlsen71/petsciiator
+
+To build the C64 application, you need to have MOSpeed installed: https://github.com/EgonOlsen71/basicv2/tree/master/dist
