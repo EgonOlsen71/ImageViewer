@@ -89,7 +89,7 @@ public class ImageExtractor {
                     }
                     String iimgSrc = imgSrc.toLowerCase();
                     if (iimgSrc.contains(".jpg") || iimgSrc.contains(".jpeg") || iimgSrc.contains(".png") || iimgSrc.contains(".webp")) {
-                        imgSrc = encode(imgSrc);
+                        imgSrc = UrlUtils.encode(imgSrc);
                         if (!images.contains(imgSrc)) {
                             images.add(imgSrc);
                         }
@@ -103,14 +103,7 @@ public class ImageExtractor {
         return images;
     }
 
-    private static String encode(String imgSrc) {
-        try {
-            //@todo improve this hack...
-            return URLEncoder.encode(imgSrc, "UTF-8").replace("%3A", ":").replace("%2F", "/").replace("%3B", ";").replace("%26", "&").replace("%3F", "?");
-        } catch (Exception e) {
-            return imgSrc;
-        }
-    }
+
 
     private static int findDomainEnd(String endMarker, String url, int pos) {
         int domainEnd = url.indexOf(endMarker, pos);

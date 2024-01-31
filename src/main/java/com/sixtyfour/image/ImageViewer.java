@@ -31,7 +31,7 @@ public class ImageViewer extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static LinkedHashMap<String, String> urlShortener = new LinkedHashMap<>() {
+    private final static LinkedHashMap<String, String> URL_SHORTENER = new LinkedHashMap<>() {
         protected boolean removeEldestEntry(Map.Entry eldest) {
             return this.size() > 2000;
         }
@@ -51,9 +51,9 @@ public class ImageViewer extends HttpServlet {
         ServletOutputStream os = response.getOutputStream();
         String file = URLDecoder.decode(request.getParameter("file"), "UTF-8");
 
-        if (urlShortener.containsKey(file)) {
-            Logger.log("Replacing URL " + file + "with " + urlShortener.get(file));
-            file = urlShortener.get(file);
+        if (URL_SHORTENER.containsKey(file)) {
+            Logger.log("Replacing URL " + file + "with " + URL_SHORTENER.get(file));
+            file = URL_SHORTENER.get(file);
         }
 
         String dither = request.getParameter("dither");
@@ -73,15 +73,23 @@ public class ImageViewer extends HttpServlet {
         }
         dithy = Math.min(1, Math.max(0, dithy));
 
-        if (!file.toLowerCase().startsWith("http")) {
+        if (file.endsWith(".")) {
+            file = file.substring(0, file.length()-1);
+        }
+        if (file.contains(".") && !file.toLowerCase().startsWith("http")) {
             file = "https://" + file;
         }
 
         Logger.log("Dithering is set to " + dithy);
         if (!file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".jpeg") && !file.endsWith(".webp")) {
             Logger.log("Unsupported file type: " + file);
-            Logger.log("Trying to extract images from page...");
-            extractImages(file, os);
+            if (file.contains(".")) {
+                Logger.log("Trying to extract images from page...");
+                extractImages(file, os, false);
+            } else {
+                Logger.log("Searching for images on Google...");
+                extractImages(file, os, true);
+            }
             return;
         }
 
@@ -144,10 +152,14 @@ public class ImageViewer extends HttpServlet {
         Logger.log("Download and conversion finished!");
     }
 
-    private void extractImages(String file, ServletOutputStream os) {
+    private void extractImages(String file, ServletOutputStream os, boolean search) {
         List<String> images;
         try {
-            images = ImageExtractor.extractImages(file);
+            if (!search) {
+                images = ImageExtractor.extractImages(file);
+            } else {
+                images = GoogleImageExtractor.searchImages(file);
+            }
         } catch (FileNotFoundException e) {
             Logger.log("URL not found: " + file, e);
             printError(os, "URL not found!");
@@ -174,7 +186,7 @@ public class ImageViewer extends HttpServlet {
             }
             String newImage = "https://jpct.de/" + UUID.randomUUID() + ".short";
             Logger.log("URL too long, transmitting a short form instead!");
-            urlShortener.put(newImage, image);
+            URL_SHORTENER.put(newImage, image);
             images.set(i, newImage);
         }
 
