@@ -186,6 +186,7 @@
 46510 lm=len(ur$):b3=bu+3:for t=1 to lm
 46520 dd%=asc(mid$(ur$,t,1))
 46540 gosub 47300
+46550 if dd%=32 then dd%=43
 46560 poke b3+t,dd%
 46570 next:gosub 47000
 46575 return
@@ -268,12 +269,15 @@
 57000 rem select image to load
 57010 gosub 2000:poke 646, 15:gosub 39500:pu%=0
 57020 print "Enter image URL. You can omit https://!"
-57022 print "If you enter a page URL instead of an"
+57022 print "{down}If you enter a page URL instead of an"
 57024 print "image URL, you can choose between the"
 57026 print "first 22 unique images on that page."
-57027 print "{down}Type {95} for underscore, RETURN to"
-57028 print "repeat the last URL and x to exit"
-57030 print "the program!{2*down}"
+57027 print "If you enter a single word or sentence,"
+57028 print "the first 10 results of an image search"
+57029 print "will be returned."
+57037 print "{down}Type {95} for underscore, RETURN to"
+57038 print "repeat the last URL and x to exit"
+57040 print "the program!{2*down}"
 57050 poke 646,1:print "Image URL: ";:gosub 58000:iu$=b$
 57060 if iu$="" then 57500
 57065 ou$ = iu$

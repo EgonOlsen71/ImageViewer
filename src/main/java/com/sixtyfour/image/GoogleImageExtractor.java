@@ -21,7 +21,7 @@ public class GoogleImageExtractor {
         }
     };
 
-    private final static String BASE_URL = "https://www.googleapis.com/customsearch/v1?safe=off&cx={0}&key={1}&searchType=image&q=";
+    private final static String BASE_URL = "https://www.googleapis.com/customsearch/v1?safe=off&cx={0}&key={1}&searchType=image&hq=1&filter=1&q=";
     private static String cx;
     private static String apiKey;
 
@@ -45,6 +45,7 @@ public class GoogleImageExtractor {
         long start = System.currentTimeMillis();
 
         if (!SEARCH_CACHE.containsKey(query)) {
+            Logger.log("Searching for: "+query);
             try (InputStream input = new URL(url).openStream(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 input.transferTo(bos);
                 start = System.currentTimeMillis();
@@ -59,6 +60,8 @@ public class GoogleImageExtractor {
                 throw e;
             }
         } else {
+            Logger.log("Getting results from cache for: "+query);
+            Logger.log("Cache size is: "+SEARCH_CACHE.size());
             html = SEARCH_CACHE.get(query);
         }
         lhtml = html.toLowerCase(Locale.ENGLISH);
