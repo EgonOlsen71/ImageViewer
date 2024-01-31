@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * Generates a simple example page out of the images in some directory
+ * Generates a simple example page out of the images in some directory. This not part
+ * of the server application but simply to generate a demo web page.
  *
  * @author EgonOlsen
  */

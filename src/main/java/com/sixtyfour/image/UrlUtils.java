@@ -3,6 +3,8 @@ package com.sixtyfour.image;
 import java.net.URLEncoder;
 
 /**
+ * Simple utils for URLs...not much in here for now.
+ *
  * @author EgonOlsen
  */
 public class UrlUtils {

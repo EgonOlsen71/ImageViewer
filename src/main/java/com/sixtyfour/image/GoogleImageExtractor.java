@@ -9,7 +9,8 @@ import java.net.URLEncoder;
 import java.util.*;
 
 /**
- * Performs a Google image source and extracts the results.
+ * Performs a Google image source and extracts the results. Without payment, this is limited to 100 request/day.
+ * Results are cached (to the end of time, but limited to 100 entries)
  *
  * @author EgonOlsen
  */
