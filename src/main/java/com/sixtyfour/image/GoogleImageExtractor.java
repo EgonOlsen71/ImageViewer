@@ -9,6 +9,8 @@ import java.net.URLEncoder;
 import java.util.*;
 
 /**
+ * Performs a Google image source and extracts the results.
+ *
  * @author EgonOlsen
  */
 public class GoogleImageExtractor {
