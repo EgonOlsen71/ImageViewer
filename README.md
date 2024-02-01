@@ -1,5 +1,5 @@
 # Remote Image Viewer
-An image viewer for the WiC64
+An image viewer for the WiC64 ( https://wic64.net/web/ )
 
 Download of the C64 application: https://github.com/EgonOlsen71/ImageViewer/blob/main/basic/build/imageviewer.d64
 
