@@ -3,6 +3,7 @@ package com.sixtyfour.image;
 import com.sixtyfour.petscii.KoalaConverter;
 import com.sixtyfour.petscii.Vic2Colors;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebInitParam;
@@ -81,7 +82,8 @@ public class ImageViewer extends HttpServlet {
         }
 
         Logger.log("Dithering is set to " + dithy);
-        if (!file.contains(".png") && !file.contains(".jpg") && !file.contains(".jpeg") && !file.contains(".webp")) {
+        String lfile = file.toLowerCase();
+        if (!lfile.contains(".png") && !lfile.contains(".jpg") && !lfile.contains(".jpeg") && !lfile.contains(".webp")) {
             Logger.log("Unsupported file type: " + file);
             if (file.contains(".")) {
                 Logger.log("Trying to extract images from page...");
@@ -156,7 +158,12 @@ public class ImageViewer extends HttpServlet {
         List<String> images;
         try {
             if (!search) {
-                images = ImageExtractor.extractImages(file);
+                try {
+                    images = ImageExtractor.extractImages(file);
+                } catch(SSLHandshakeException e) {
+                    Logger.log("https doesn't work, trying http instead...");
+                    images = ImageExtractor.extractImages(file.replace("https:", "http:"));
+                }
             } else {
                 images = GoogleImageExtractor.searchImages(file);
             }

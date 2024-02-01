@@ -16,6 +16,9 @@ import java.util.*;
  */
 public class GoogleImageExtractor {
 
+    // These never work...
+    private static String[] TO_IGNORE = {"redd.it"};
+
     private final static LinkedHashMap<String, String> SEARCH_CACHE = new LinkedHashMap<>() {
         protected boolean removeEldestEntry(Map.Entry eldest) {
             return this.size() > 100;
@@ -80,7 +83,13 @@ public class GoogleImageExtractor {
                     if (iimgSrc.contains(".jpg") || iimgSrc.contains(".jpeg") || iimgSrc.contains(".png") || iimgSrc.contains(".webp")) {
                         imgSrc = UrlUtils.encode(imgSrc);
                         if (!images.contains(imgSrc)) {
-                            images.add(imgSrc);
+                            for (String never:TO_IGNORE) {
+                                if (!imgSrc.toLowerCase().contains(never)) {
+                                    images.add(imgSrc);
+                                } else {
+                                    Logger.log("Ignoring URL: "+imgSrc);
+                                }
+                            }
                         }
                     }
                 }
