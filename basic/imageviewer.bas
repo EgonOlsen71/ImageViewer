@@ -268,7 +268,7 @@
 
 57000 rem select image to load
 57010 gosub 2000:poke 646, 15:gosub 39500:pu%=0
-57020 print "Enter img/pdf URL. You can omit https://!"
+57020 print "Enter img/pdf URL. You can omit https://";
 57022 print "{down}If you enter a page URL instead of an"
 57024 print "image URL, you can choose between the"
 57026 print "first 22 unique images on that page."
