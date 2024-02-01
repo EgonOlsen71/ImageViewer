@@ -49,6 +49,9 @@ public class ImageViewer extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        ServletConfig sc = getServletConfig();
+        String path = sc.getInitParameter("imagepath");
+
         ServletOutputStream os = response.getOutputStream();
         String file = URLDecoder.decode(request.getParameter("file"), "UTF-8");
 
@@ -73,31 +76,39 @@ public class ImageViewer extends HttpServlet {
             }
         }
         dithy = Math.min(1, Math.max(0, dithy));
-
-        if (file.endsWith(".")) {
-            file = file.substring(0, file.length()-1);
-        }
-        if (file.contains(".") && !file.toLowerCase().startsWith("http")) {
-            file = "https://" + file;
-        }
-
         Logger.log("Dithering is set to " + dithy);
-        String lfile = file.toLowerCase();
-        if (!lfile.contains(".png") && !lfile.contains(".jpg") && !lfile.contains(".jpeg") && !lfile.contains(".webp")) {
-            Logger.log("Unsupported file type: " + file);
-            if (file.contains(".")) {
-                Logger.log("Trying to extract images from page...");
-                extractImages(file, os, false);
-            } else {
-                Logger.log("Searching for images on Google...");
-                extractImages(file, os, true);
+
+        boolean directPdfLink = file.startsWith("page://");
+
+        if (!directPdfLink) {
+            if (file.endsWith(".")) {
+                file = file.substring(0, file.length() - 1);
             }
-            return;
+            if (file.contains(".") && !file.toLowerCase().startsWith("http")) {
+                file = "https://" + file;
+            }
+
+            String lfile = file.toLowerCase();
+            if (!lfile.contains(".png") && !lfile.contains(".jpg") && !lfile.contains(".jpeg") && !lfile.contains(".webp")) {
+                Logger.log("Unsupported image type: " + file);
+                if (lfile.contains(".pdf")) {
+                    Logger.log("PDF detected, rendering it...");
+                    List<String> rendered = new PdfRenderer().renderPages(file, path);
+                    transmitImageReferences(os, rendered);
+                } else {
+                    if (file.contains(".")) {
+                        Logger.log("Trying to extract images from page...");
+                        extractImages(file, os, false);
+                    } else {
+                        Logger.log("Searching for images on Google...");
+                        extractImages(file, os, true);
+                    }
+                }
+                return;
+            }
         }
 
         Logger.log("Downloading image: " + file);
-        ServletConfig sc = getServletConfig();
-        String path = sc.getInitParameter("imagepath");
 
         String ext = file.substring(file.lastIndexOf("."));
 
@@ -106,7 +117,7 @@ public class ImageViewer extends HttpServlet {
         pathy.mkdirs();
         File bin = new File(pathy, targetFile);
 
-        try (InputStream input = new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
+        try (InputStream input = directPdfLink?new FileInputStream(new File(pathy, file.substring(7))):new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
             input.transferTo(fos);
         } catch (java.io.FileNotFoundException e) {
             Logger.log("File not found: " + file, e);
@@ -181,6 +192,10 @@ public class ImageViewer extends HttpServlet {
             return;
         }
 
+        transmitImageReferences(os, images);
+    }
+
+    private void transmitImageReferences(ServletOutputStream os, List<String> images) {
         if (images == null) {
             printError(os, "No valid images found!");
             return;
