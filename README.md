@@ -25,4 +25,6 @@ You can save the images in Koala Painter format as well. There's also a localvie
 
 To build the server, you need the Petsciiator project as well https://github.com/EgonOlsen71/petsciiator
 
+For the Google image search to work, the server expects the required information to access the API in /webdata/imageviewer/apikey.ini with a "cx" and a "key" entry just like the REST-call needs them. 
+
 To build the C64 application, you need to have MOSpeed installed: https://github.com/EgonOlsen71/basicv2/tree/master/dist
