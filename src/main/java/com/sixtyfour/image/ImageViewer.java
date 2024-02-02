@@ -52,7 +52,10 @@ public class ImageViewer extends HttpServlet {
         ServletConfig sc = getServletConfig();
         String path = sc.getInitParameter("imagepath");
 
+        response.setHeader("WiC64", "true");
         ServletOutputStream os = response.getOutputStream();
+        os.flush();
+
         String file = URLDecoder.decode(request.getParameter("file"), "UTF-8");
 
         if (URL_SHORTENER.containsKey(file)) {

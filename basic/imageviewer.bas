@@ -14,11 +14,12 @@
 1030 return
 
 2000 rem init screen defaults
-2010 gosub 1000:print "{red}Remote {green}Image {light blue}Viewer - {white}EgonOlsen71/2024{2*down}"
+2010 gosub 1000
+2015 print "{light red}Remote {green}Image {light blue}Viewer - {white}EgonOlsen71/2024{2*down}"
 2020 return
 
 10000 rem press any key
-10010 print "{down}Press any key"
+10010 print "{down}Press any key":poke 198,0
 10020 get a$:if a$="" then 10020
 10030 return
 
@@ -99,7 +100,7 @@
 39510 for i=0 to 30:pu$(i)="":next:return
 
 40000 rem extract image list from ram
-40005 gosub 39500:pu%=0
+40005 gosub 39500:pu%=0:dr%=0
 40010 mp=bu+202:of=3:poke 646,7:print chr$(147);"Select image file:"
 40020 br%=peek(mp):if br%=0 or pu%>21 then gosub 40500:return
 40030 gosub 42000:ke$=str$(pu%)
@@ -121,13 +122,24 @@
 40530 if iu%>=pu% then iu%=pu%-1
 40540 iu$=pu$(iu%):er%=2:return
 
+40800 rem set timeout
+40805 if tv%=0 then return
+40810 poke bu,87:poke bu+1,5:poke bu+2,0:poke bu+3,50
+40820 poke bu+4,tv%
+40830 gosub 41800
+40840 return
+
 41500 rem send and receive data
-41510 poke 171,tt%:sys us,bu
-41520 if peek(171)=0 then 56000
-41530 poke 171,tt%:sys ug,bu+200
-41540 if peek(171)=0 then 56000
+41510 gosub 55100
+41520 gosub 41800
 41550 gosub 46000:if le% then gosub 56200
 41560 br%=peek(169)+256*peek(170):return
+
+41800 rem send basic request
+41810 poke 171,tt%:sys us,bu
+41820 gosub 56000
+41830 poke 171,tt%:sys ug,bu+200
+41840 gosub 56000:return
 
 42000 rem grab reply
 42010 mg$="":if br%=0 then return
@@ -148,7 +160,6 @@
 44000 rem download file
 44005 print chr$(147);"Loading image...";
 44006 if pu%>1 then poke 646,7:print:print "{down}Press CRSR left/right to switch image...":poke 646,1
-44010 gosub 55000
 44025 gosub 44500
 44030 gosub 46500:gosub 41500:if iu$="" then er%=1:return
 44050 gosub 45000
@@ -162,7 +173,7 @@
 
 45000 rem check for server error
 45010 va%=peek(bu+200)+256*peek(bu+201)
-45020 if va%<>0 then if va%<>257 then return
+45020 if va%<>0 then if va%>257 then dr%=0:return
 45030 if va%=0 then of=2:br%=br%-2:gosub 42000:return
 45035 gosub 40000
 45040 return
@@ -183,6 +194,7 @@
 46030 return
 
 46500 rem store url in memory
+46505 gosub 40800
 46510 lm=len(ur$):b3=bu+3:for t=1 to lm
 46520 dd%=asc(mid$(ur$,t,1))
 46540 gosub 47300
@@ -208,7 +220,9 @@
 47340 return
 
 52000 rem display loaded image
-52010 poke 56576,(peek(56576) and 252) or 2
+52005 if dr%<>0 then a%=157:if dr%=1 then a%=29
+52006 if dr%<>0 then 52152
+52010 poke 198,0:poke 56576,(peek(56576) and 252) or 2
 52020 ol%=peek(53272):poke 53272,120
 52030 poke 53270,216
 52035 poke 53265,peek(53265) or 32
@@ -222,37 +236,41 @@
 52085 rem [lda 33975,x; sta 55695,x; lda 34175,x; sta 55895,x]
 52090 rem [lda 34375,x; sta 56095,x; dex; bne loopy]
 52095 get a$:if a$="" then 52095
+52096 a%=asc(a$)
 52100 poke 56576,(peek(56576) and 252) or 3
 52110 poke 53272,ol%
 52130 poke 53265,peek(53265) and 223
 52140 poke 53270,peek(53270) and 239
 52150 poke 646,1:print chr$(147);
-52152 if pu%>0 then if a$="{left}" or a$="{right}" then gosub 52160:if er%=0 then goto 52000
+52152 if pu%>0 then if a%=29 or a%=157 then gosub 52160:goto 52500
 52154 return
 52160 rem switch image
-52170 if a$="{left}" then iu%=iu%-1:goto 52180
+52170 dr%=1:if a%=157 then dr%=-1:iu%=iu%-1:goto 52180
 52175 iu%=iu%+1
 52180 if iu%<0 then iu%=0:gosub 53000:return
 52190 if iu%=pu% then iu%=pu%-1:gosub 53000:return
 52200 iu$=pu$(iu%):er%=0:gosub 1000:gosub 44000:return
+52500 rem next image if error
+52510 if (er%=1 and dr%<>0) or er%=0 then 52000: rem error and 'next image' or no error.
+52520 return
 
 53000 rem flash screen
 53010 tx=ti:oc%=peek(53280)
 53020 poke 53280,(peek(53280)+1) and 3
 53030 if ti-tx<30 then 53020
-53040 poke 53280,oc%:return
+53040 poke 53280,oc%:dr%=0:return
 
 55000 rem init wic64
 55010 sys ui: rem init
 55020 sys uc: rem check presence
 55030 gosub 56000
-55035 poke bu,87:poke bu+3,15: rem "w" mode, http get
-55050 return
+55100 poke bu,87:poke bu+3,15: rem "w" mode, http get
+55110 return
 
 56000 rem wic64 error?
 56010 if peek(171)<>0 then return
 56030 print:print "Communication error!":print
-56040 print "Check your WIC64!"
+56040 print "Check your WiC64 and its firmware!"
 56060 goto 60000
 
 56200 rem load error
@@ -263,7 +281,7 @@
 56500 rem check for api presence...
 56505 dn%=peek(186):if dn%<8 then dn%=8
 56510 lf%=peek(49152)=76 and peek(49153)=30 and peek(49154)=192
-56520 if lf%=0 then print chr$(147);"Loading...":load "universal",dn%,1
+56520 if lf%=0 then print chr$(147);"Com. routines are missing!":goto 60000
 56530 return
 
 57000 rem select image to load
@@ -319,6 +337,7 @@
 60030 print:print "{down}Have a nice BASIC!":end
 
 62000 rem init
+62005 dr%=0:tv%=255
 62020 tt%=64:bu=24374:ui=49152
 62030 ur=49155:us=49152+18:ug=49152+21:uc=49152+24
 62050 dim pu$(22):pu%=0:ou$="":ks%=1
