@@ -1,4 +1,6 @@
 0 rem Remote Image Viewer / EgonOlsen71 / 2024
+2 tv%=0:tt%=64:bu=24374:ui=49152:ur=49155:us=49152+18:ug=49152+21:uc=49152+24
+3 ll$=chr$(0)
 5 gosub 1000:gosub 56500:gosub 62000:gosub 45800
 10 gosub 57000
 20 gosub 30000:if iu$="" then 10
@@ -124,8 +126,8 @@
 
 40800 rem set timeout
 40805 if tv%=0 then return
-40810 poke bu,87:poke bu+1,5:poke bu+2,0:poke bu+3,50
-40820 poke bu+4,tv%
+40810 poke bu,87:poke bu+1,5:poke bu+2,0
+40820 poke bu+3,50:poke bu+4,tv%
 40830 gosub 41800
 40840 return
 
@@ -228,13 +230,13 @@
 52035 poke 53265,peek(53265) or 32
 52040 poke 53280,peek(34576)
 52050 poke 53281,peek(34576)
-52060 rem [ ldx #201 ]
+52060 rem [ ldx #251 ]
 52065 rem [loopy; lda 32575,x; sta 23551,x]
-52070 rem [lda 32775,x; sta 23751,x; lda 32975,x; sta 23951,x]
-52075 rem [lda 33175,x; sta 24151,x; lda 33375,x; sta 24351,x]
-52080 rem [lda 33575,x; sta 55295,x; lda 33775,x; sta 55495,x]
-52085 rem [lda 33975,x; sta 55695,x; lda 34175,x; sta 55895,x]
-52090 rem [lda 34375,x; sta 56095,x; dex; bne loopy]
+52070 rem [lda 32825,x; sta 23801,x; lda 33075,x; sta 24051,x]
+52075 rem [lda 33325,x; sta 24301,x;]
+52080 rem [lda 33575,x; sta 55295,x; lda 33825,x; sta 55545,x]
+52085 rem [lda 34075,x; sta 55795,x; lda 34325,x; sta 56045,x]
+52090 rem [dex; bne loopy]
 52095 get a$:if a$="" then 52095
 52096 a%=asc(a$)
 52100 poke 56576,(peek(56576) and 252) or 3
@@ -337,11 +339,8 @@
 60030 print:print "{down}Have a nice BASIC!":end
 
 62000 rem init
-62005 dr%=0:tv%=255
-62020 tt%=64:bu=24374:ui=49152
-62030 ur=49155:us=49152+18:ug=49152+21:uc=49152+24
-62050 dim pu$(22):pu%=0:ou$="":ks%=1
-62060 gu$="":ll$=chr$(0)
+62050 dim pu$(22):pu%=0:ou$="":ks%=1:dr%=0
+62060 gu$=""
 62065 dim bv$(1):bv$(0)="no":bv$(1)="yes":ar%=1
 62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0":ds%=1
 62100 gosub 55000:return

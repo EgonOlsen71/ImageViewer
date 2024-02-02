@@ -56,13 +56,13 @@
 52035 poke 53265,peek(53265) or 32
 52040 poke 53280,peek(34576)
 52050 poke 53281,peek(34576)
-52060 rem [ ldx #201 ]
+52060 rem [ ldx #251 ]
 52065 rem [loopy; lda 32575,x; sta 23551,x]
-52070 rem [lda 32775,x; sta 23751,x; lda 32975,x; sta 23951,x]
-52075 rem [lda 33175,x; sta 24151,x; lda 33375,x; sta 24351,x]
-52080 rem [lda 33575,x; sta 55295,x; lda 33775,x; sta 55495,x]
-52085 rem [lda 33975,x; sta 55695,x; lda 34175,x; sta 55895,x]
-52090 rem [lda 34375,x; sta 56095,x; dex; bne loopy]
+52070 rem [lda 32825,x; sta 23801,x; lda 33075,x; sta 24051,x]
+52075 rem [lda 33325,x; sta 24301,x;]
+52080 rem [lda 33575,x; sta 55295,x; lda 33825,x; sta 55545,x]
+52085 rem [lda 34075,x; sta 55795,x; lda 34325,x; sta 56045,x]
+52090 rem [dex; bne loopy]
 52095 get a$:if a$="" then 52095
 52100 poke 56576,(peek(56576) and 252) or 3
 52110 poke 53272,ol%
