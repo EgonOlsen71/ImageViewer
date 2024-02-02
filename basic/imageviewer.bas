@@ -1,10 +1,10 @@
 0 rem Remote Image Viewer / EgonOlsen71 / 2024
-2 tv%=0:tt%=64:bu=24374:ui=49152:ur=49155:us=49152+18:ug=49152+21:uc=49152+24
+2 tv%=255:tt%=64:bu=24374:ui=49152:ur=49155:us=49152+18:ug=49152+21:uc=49152+24
 3 ll$=chr$(0)
 5 gosub 1000:gosub 56500:gosub 62000:gosub 45800
 10 gosub 57000
 20 gosub 30000:if iu$="" then 10
-30 er%=0:gosub 44000:if er%=1 then 10
+30 er%=0:gosub 44000:if er%=1 and dr%=0 then 10
 32 if er%=2 then 30
 35 gosub 52000
 40 gosub 20000
@@ -157,7 +157,13 @@
 43000 rem fatal error
 43010 print:print mg$
 43020 gosub 10000
+43025 if pu%>1 then if dr%=0 then gosub 43500
 43030 er%=1:return
+
+43500 rem set direction in case of error
+43510 dr%=1
+43520 if iu%=pu%-1 then dr%=-1
+43530 return
 
 44000 rem download file
 44005 print chr$(147);"Loading image...";
@@ -170,7 +176,6 @@
 44500 rem contruct download url
 44510 ur$=gu$+"ImageViewer?file="+iu$+"&dither="+ds$(ds%)
 44515 if len(ur$)<245 then if ar% then ur$=ur$+"&ar=true"
-44520 rem print ur$
 44530 return
 
 45000 rem check for server error

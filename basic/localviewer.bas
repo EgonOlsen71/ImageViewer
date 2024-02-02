@@ -12,7 +12,7 @@
 1030 return
 
 2000 rem init screen defaults
-2010 gosub 1000:print "{red}Local {green}Koala {light blue}Viewer - {white}EgonOlsen71/2024{2*down}"
+2010 gosub 1000:print "{light red}Local {green}Koala {light blue}Viewer - {white}EgonOlsen71/2024{2*down}"
 2020 return
 
 3000 rem main menu

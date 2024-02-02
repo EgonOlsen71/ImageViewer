@@ -52,7 +52,7 @@ public class PdfRenderer {
             PDFRenderer pdfRenderer = new PDFRenderer(document);
             for (int i=0; i<document.getNumberOfPages() && i<10; i++) {
                 Logger.log("Rendering page: "+i);
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 300, ImageType.RGB);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 150, ImageType.RGB);
                 Bitmap bmp = new Bitmap(bim);
                 String pdfImageName = name+"_"+i+PDF_PNG;
                 bmp.save(targetDir + pdfImageName);
