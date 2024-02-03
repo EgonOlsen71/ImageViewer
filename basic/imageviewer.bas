@@ -29,7 +29,7 @@
 20010 gosub 2000
 20020 print "F1 - Show loaded image"
 20025 print "F3 - Show directory"
-20035 print "F4 - Change target drive:";dn%
+20035 print "+- - Change target drive:";dn%
 20036 print "F5 - Koala style file names: ";bv$(ks%)
 20040 print "F8 - Back to load menu"
 20045 print "{down}F7/RETURN - Save image"
@@ -37,7 +37,8 @@
 20060 a%=asc(a$):if a%=133 then gosub 52000:goto 20000
 20070 if a%=136 or a%=13 then gosub 21000:goto 20000
 20080 if a%=140 or a%=95 then return
-20082 if a%=138 then gosub 22000:goto 20000
+20082 if a%=138 or a%=43 then da%=1:gosub 22000:goto 20000
+20083 if a%=45 then da%=-1:gosub 22000:goto 20000
 20085 if a%=88 then 60000
 20086 if a%=73 then gosub 23000:goto 20000
 20088 if a%=134 then gosub 59000:goto 20000
@@ -65,7 +66,8 @@
 21530 return
 
 22000 rem change target drive
-22010 dn%=dn%+1:if dn%=12 then dn%=8
+22010 dn%=dn%+da%:if dn%=12 then dn%=8
+22015 if dn%=7 then dn%=11
 22020 return
 
 23000 rem print system info

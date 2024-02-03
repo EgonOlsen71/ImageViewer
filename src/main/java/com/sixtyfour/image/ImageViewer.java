@@ -113,7 +113,7 @@ public class ImageViewer extends HttpServlet {
 
         Logger.log("Downloading image: " + file);
 
-        String ext = file.substring(file.lastIndexOf("."));
+        String ext = getType(file);
 
         String targetFile = UUID.randomUUID() + ext;
         File pathy = new File(path);
@@ -168,6 +168,20 @@ public class ImageViewer extends HttpServlet {
         Logger.log("Download and conversion finished!");
     }
 
+    private String getType(String file) {
+        String lFile = file.toLowerCase();
+        if (lFile.contains(".jpg") || lFile.contains(".jpeg")) {
+            return ".jpg";
+        }
+        if (lFile.contains(".png")) {
+            return ".png";
+        }
+        if (lFile.contains(".webp")) {
+            return ".webp";
+        }
+        return lFile.substring(file.lastIndexOf("."));
+    }
+
     private void extractImages(String file, ServletOutputStream os, boolean search) {
         List<String> images;
         try {
@@ -188,6 +202,10 @@ public class ImageViewer extends HttpServlet {
         } catch (UnknownHostException e) {
             Logger.log("Unknown host: " + file, e);
             printError(os, "Unknown host!");
+            return;
+        } catch (java.net.SocketException e) {
+            Logger.log("Network is unreachable: " + file, e);
+            printError(os, "Network is unreachable (local?)!");
             return;
         } catch (Exception e) {
             Logger.log("Failed to extract images from " + file, e);

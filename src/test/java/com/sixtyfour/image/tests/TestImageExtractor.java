@@ -7,11 +7,10 @@ import java.util.List;
 public class TestImageExtractor {
 
     public static void main(String[] args) throws Exception {
-        //List<String> images = ImageExtractor.extractImages("https://spiegel.de");
-        //listImages(images);
-        List<String> images = ImageExtractor.extractImages("https://buecher.schluetersche.de/de/veterinaermedizin/gross-nutztier/");
+        List<String> images = ImageExtractor.extractImages("https://spiegel.de");
         listImages(images);
-        /*
+        images = ImageExtractor.extractImages("https://buecher.schluetersche.de/de/veterinaermedizin/gross-nutztier/");
+        listImages(images);
         images = ImageExtractor.extractImages("https://service.schluetersche.de");
         listImages(images);
         images = ImageExtractor.extractImages("https://jpct.net");
@@ -20,10 +19,13 @@ public class TestImageExtractor {
         listImages(images);
         images = ImageExtractor.extractImages("https://gamerant.com/best-amiga-games/");
         listImages(images);
-        */
+        images = ImageExtractor.extractImages("https://foerster-engel.de/expertise.html");
+        listImages(images);
+
     }
 
     private static void listImages(List<String> images) {
+        System.out.println("----------------------------------------------------");
         images.stream().forEach(System.out::println);
     }
 

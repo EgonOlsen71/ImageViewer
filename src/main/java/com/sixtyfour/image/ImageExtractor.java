@@ -15,6 +15,8 @@ import java.util.Locale;
  */
 public class ImageExtractor {
 
+    private static final String[] PAGES = {".html", "htm", ".php", ".jsp", ".py", ".asp", ".js", ".txt"};
+
     public static List<String> extractImages(String url) throws Exception {
         List<String> images = new ArrayList<>();
         String html;
@@ -57,17 +59,7 @@ public class ImageExtractor {
         int domainEnd = Math.min(url.length(), Math.min(domainEnd0, Math.min(domainEnd1, domainEnd2)));
         int urlEnd = Math.min(url.length(), Math.min(domainEnd1, domainEnd2));
         String domain = url.substring(0, domainEnd);
-        String base = url.substring(0, urlEnd);
-        if (domainEnd1 != -1)
-            if (pos != -1) {
-                String sbase = getSourceAttribute(lhtml, html, pos, protocol, "href");
-                if (sbase != null) {
-                    base = sbase;
-                }
-            }
-        if (!base.endsWith("/")) {
-            base += "/";
-        }
+        String base = getBase(url, urlEnd, domainEnd1, pos, lhtml, html, protocol);
         if (domain.endsWith("/")) {
             domain = domain.substring(0, domain.length() - 1);
         }
@@ -103,6 +95,31 @@ public class ImageExtractor {
         return images;
     }
 
+    private static String getBase(String url, int urlEnd, int domainEnd1, int pos, String lhtml, String html, String protocol) {
+        String base = url.substring(0, urlEnd);
+        if (domainEnd1 != -1) {
+            if (pos != -1) {
+                String sbase = getSourceAttribute(lhtml, html, pos, protocol, "href");
+                if (sbase != null) {
+                    base = sbase;
+                }
+            }
+        }
+        String lbase = base.toLowerCase();
+        for (String page:PAGES) {
+            if (lbase.contains(page)) {
+                pos = lbase.lastIndexOf(page);
+                int cutOff = lbase.lastIndexOf("/", pos);
+                if (cutOff!=-1) {
+                    base = base.substring(0, cutOff);
+                }
+            }
+        }
+        if (!base.endsWith("/")) {
+            base += "/";
+        }
+        return base;
+    }
 
 
     private static int findDomainEnd(String endMarker, String url, int pos) {
