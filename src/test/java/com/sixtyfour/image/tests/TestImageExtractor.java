@@ -9,6 +9,7 @@ public class TestImageExtractor {
     public static void main(String[] args) throws Exception {
         List<String> images = ImageExtractor.extractImages("https://spiegel.de");
         listImages(images);
+        /*
         images = ImageExtractor.extractImages("https://buecher.schluetersche.de/de/veterinaermedizin/gross-nutztier/");
         listImages(images);
         images = ImageExtractor.extractImages("https://service.schluetersche.de");
@@ -20,6 +21,9 @@ public class TestImageExtractor {
         images = ImageExtractor.extractImages("https://gamerant.com/best-amiga-games/");
         listImages(images);
         images = ImageExtractor.extractImages("https://foerster-engel.de/expertise.html");
+        listImages(images);
+        */
+        images = ImageExtractor.extractImages("https://crpgaddict.blogspot.com");
         listImages(images);
 
     }

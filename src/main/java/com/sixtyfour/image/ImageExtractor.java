@@ -139,7 +139,7 @@ public class ImageExtractor {
             endPos = endPos0;
         }
         int srcPos = lhtml.indexOf(attribute + "=", pos);
-        if (srcPos != -1 && srcPos < endPos && endPos < pos + 300) {
+        if (srcPos != -1 && srcPos < endPos && endPos < pos + 500) {
             int srcEndPos = lhtml.indexOf(" ", srcPos);
             if (srcEndPos == -1 || srcEndPos > endPos) {
                 srcEndPos = endPos;
