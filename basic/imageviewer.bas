@@ -55,8 +55,8 @@
 21090 for i=1 to len(t$):poke 831+i,asc(mid$(t$,i,1)):next
 21100 poke 782,3: poke 781,64:poke 780,len(t$):sys 65469:poke 780,1
 21110 poke 781,dn%:poke 782,1:sys 65466
-21120 poke 254,24576/256:poke 253,24576-peek(254)*256:poke 780,253:poke 782,34577/256
-21130 poke 781,34577-peek(782)*256:sys 65496
+21120 poke 254,96:poke 253,0:poke 780,253:poke 782,135
+21130 poke 781,17:sys 65496
 21140 if (peek(783) and  1) or (st and  191) then gosub 21500
 21150 return
 
@@ -351,9 +351,12 @@
 60030 print:print "{down}Have a nice BASIC!":end
 
 62000 rem init
-62050 dim pu$(22):pu%=0:ou$="":ks%=1:dr%=0
+62050 dim pu$(22):ou$="":ks%=1:ds%=1:ar%=1
 62060 gu$=""
-62065 dim bv$(1):bv$(0)="no":bv$(1)="yes":ar%=1
-62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0":ds%=1
-62080 for i=0 to 255:dd%=i:gosub 47300:poke 40000+i,dd%:next
+62065 dim bv$(1):bv$(0)="no":bv$(1)="yes"
+62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0"
+62080 dd%=0:i%=0:pu%=0:dr%=0: rem setup conversion table
+62081 rem [ldx i%!; stx dd%!]
+62082 gosub 47300:rem [ldx i%!; lda dd%!; sta 40000,x]
+62085 rem [inc i%!; bne 62081!]
 62100 gosub 55000:return

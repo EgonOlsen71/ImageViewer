@@ -127,6 +127,17 @@ public class ImageViewer extends HttpServlet {
             printError(os, "Image not found!");
             delete(bin);
             return;
+        } catch (IOException e) {
+            Logger.log("IO error while loading image: " + file, e);
+            String code = "???";
+            String msg = e.getMessage();
+            if (msg.contains("code: ")) {
+                int pos = msg.indexOf("code: ");
+                code = msg.substring(pos+6, pos+9).trim();
+            }
+            printError(os, "Server returned error code: "+code);
+            delete(bin);
+            return;
         } catch (Exception e) {
             Logger.log("Failed to load image: " + file, e);
             printError(os, "Failed to load image!");
