@@ -148,10 +148,7 @@
 42000 rem grab reply
 42010 mg$="":if br%=0 then return
 42014 be=bu+of+199+br%
-42015 if be<32768 then 42072: rem if possible, use integer loop
-42020 for i=bu+200+of to be
-42030 dd%=peek(i):gosub 47300:mg$=mg$+chr$(dd%)
-42070 next:goto 42080
+42015 if be>32767 then print "OOM":end
 42071 rem fast path for buffer addr fitting into integer var
 42072 i%=bu+200+of:be%=be:dd%=0
 42073 rem [lda i%!; ldx i%!+1; sta loadindexxx+1; stx loadindexxx+2; loadindexxx ;ldx $ffff; lda 40000,x; sta dd%!]
