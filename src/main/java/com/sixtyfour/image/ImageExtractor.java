@@ -3,7 +3,7 @@ package com.sixtyfour.image;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +30,7 @@ public class ImageExtractor {
                 return null;
             }
             start = System.currentTimeMillis();
-            html = bos.toString("UTF-8");
+            html = bos.toString(StandardCharsets.UTF_8);
             lhtml = html.toLowerCase(Locale.ENGLISH);
             if (lhtml.contains("iso-8859") || lhtml.contains("windows-1252")) {
                 // Hack, that might encode slightly better in some cases...
@@ -49,7 +49,7 @@ public class ImageExtractor {
         int pos = lhtml.indexOf("<base ");
 
         String protocol = "https://";
-        if (url.indexOf("://") != -1) {
+        if (url.contains("://")) {
             protocol = url.substring(0, url.indexOf("://") + 3);
         }
         int protoPos = url.indexOf("://") + 3;

@@ -152,9 +152,10 @@
 42020 for i=bu+200+of to be
 42030 dd%=peek(i):gosub 47300:mg$=mg$+chr$(dd%)
 42070 next:goto 42080
-42072 i%=bu+200+of:be%=be
-42073 dd%=peek(i%):gosub 47300:mg$=mg$+chr$(dd%)
-42074 i%=i%+1:if i%<=be% then 42073
+42071 rem fast path for buffer addr fitting into integer var
+42072 i%=bu+200+of:be%=be:dd%=0
+42073 rem [lda i%!; ldx i%!+1; sta loadindexxx+1; stx loadindexxx+2; loadindexxx ;ldx $ffff; lda 40000,x; sta dd%!]
+42074 mg$=mg$+chr$(dd%):i%=i%+1:if i%<=be% then 42073
 42080 if len(mg$)<=5 then return
 42090 a$=left$(mg$,5):if a$="error" or a$="Error" or a$="ERROR" then 43000
 42100 return
@@ -353,4 +354,5 @@
 62060 gu$=""
 62065 dim bv$(1):bv$(0)="no":bv$(1)="yes":ar%=1
 62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0":ds%=1
+62080 for i=0 to 255:dd%=i:gosub 47300:poke 40000+i,dd%:next
 62100 gosub 55000:return
