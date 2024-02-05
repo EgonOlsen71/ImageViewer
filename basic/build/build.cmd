@@ -1,4 +1,4 @@
-call mospeed ..\imageviewer.bas -inlineasm=true -generatesrc=true -varend=23540 -compactlevel=4 -assignmentopt=true -sysbuffer=53000
+call mospeed ..\imageviewer.bas -inlineasm=true -generatesrc=true -varend=23540 -compactlevel=4 -assignmentopt=true -varopt=true -sysbuffer=53000
 call mospeed ..\localviewer.bas -inlineasm=true -generatesrc=true -varend=23540 -compactlevel=4 -assignmentopt=true -compression=true
 call moscrunch ++imageviewer.prg -addfiles=..\res\universal.prg
 del imageviewer.d64
