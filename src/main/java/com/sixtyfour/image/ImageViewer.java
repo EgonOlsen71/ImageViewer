@@ -56,7 +56,7 @@ public class ImageViewer extends HttpServlet {
         ServletOutputStream os = response.getOutputStream();
         os.flush();
 
-        String file = URLDecoder.decode(request.getParameter("file"), "UTF-8");
+        String file = URLDecoder.decode(request.getParameter("file"), StandardCharsets.UTF_8);
 
         if (URL_SHORTENER.containsKey(file)) {
             Logger.log("Replacing URL " + file + "with " + URL_SHORTENER.get(file));
@@ -258,7 +258,7 @@ public class ImageViewer extends HttpServlet {
 			...
 			0
 		 */
-        if (images != null && images.size() > 22) {
+        if (images.size() > 22) {
             images = images.subList(0, 22);
             Logger.log("Limited image list to " + images.size());
         }

@@ -42,7 +42,7 @@
 20085 if a%=88 then 60000
 20086 if a%=73 then gosub 23000:goto 20000
 20088 if a%=134 then gosub 59000:goto 20000
-20090 if a%=135 then ks%=(ks%+1) and 1:goto 20000
+20090 if a%=135 then ks%=1-ks%:goto 20000
 20100 goto 20050
 
 21000 rem save image to disk
@@ -95,7 +95,7 @@
 31020 return
 
 31500 rem adjust aspect ratio
-31510 ar%=(ar%+1) and 1:return
+31510 ar%=1-ar%:return
 
 39000 rem low/highbyte. Value in tb, result in lb% and hb%
 39010 lb%=tb and 255:hb%=int(tb/256):return
