@@ -147,12 +147,16 @@
 
 42000 rem grab reply
 42010 mg$="":if br%=0 then return
-42014 be=bu+of+199+br%
-42015 if be>32767 then print "OOM":end
-42071 rem fast path for buffer addr fitting into integer var
-42072 i%=bu+200+of:be%=be:dd%=0
-42073 rem [lda i%!; ldx i%!+1; sta loadindexxx+1; stx loadindexxx+2; loadindexxx ;ldx $ffff; lda 40000,x; sta dd%!]
-42074 mg$=mg$+chr$(dd%):i%=i%+1:if i%<=be% then 42073
+42015 be=bu+of+199+br%
+42020 if be>32767 then print "OOM":end
+42022 rem fast path for buffer addr fitting into integer var
+42025 i%=bu+200+of:be%=be:dd%=0:mp$=""
+42026 rem add new string parts in chunks, which is faster (less copying involved...)
+42030 rem [lda i%!; ldx i%!+1; sta loadindexxx+1; stx loadindexxx+2; loadindexxx ;ldx $ffff; lda 40000,x; sta dd%!]
+42035 mp$=mp$+chr$(dd%)
+42040 if len(mp$)>10 then mg$=mg$+mp$:mp$=""
+42050 i%=i%+1:if i%<=be% then 42030
+42060 if len(mp$)>0 then mg$=mg$+mp$
 42080 if len(mg$)<=5 then return
 42090 a$=left$(mg$,5):if a$="error" or a$="Error" or a$="ERROR" then 43000
 42100 return
