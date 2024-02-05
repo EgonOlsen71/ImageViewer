@@ -147,11 +147,14 @@
 
 42000 rem grab reply
 42010 mg$="":if br%=0 then return
-42020 for i=bu+200+of to bu+of+199+br%
-42030 dd%=peek(i)
-42040 gosub 47300
-42060 mg$=mg$+chr$(dd%)
-42070 next
+42014 be=bu+of+199+br%
+42015 if be<32768 then 42072: rem if possible, use integer loop
+42020 for i=bu+200+of to be
+42030 dd%=peek(i):gosub 47300:mg$=mg$+chr$(dd%)
+42070 next:goto 42080
+42072 i%=bu+200+of:be%=be
+42073 dd%=peek(i%):gosub 47300:mg$=mg$+chr$(dd%)
+42074 i%=i%+1:if i%<=be% then 42073
 42080 if len(mg$)<=5 then return
 42090 a$=left$(mg$,5):if a$="error" or a$="Error" or a$="ERROR" then 43000
 42100 return
