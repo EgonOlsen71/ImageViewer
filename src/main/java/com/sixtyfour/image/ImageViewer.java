@@ -120,6 +120,8 @@ public class ImageViewer extends HttpServlet {
         pathy.mkdirs();
         File bin = new File(pathy, targetFile);
 
+        file = UrlUtils.encode(file); // (Re-)encode the URL..not sure, why I'm decoding it in the first place, but anyway...
+
         try (InputStream input = directPdfLink?new FileInputStream(new File(pathy, file.substring(7))):new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
             input.transferTo(fos);
         } catch (java.io.FileNotFoundException e) {
