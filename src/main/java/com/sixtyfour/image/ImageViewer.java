@@ -184,6 +184,8 @@ public class ImageViewer extends HttpServlet {
     }
 
     private boolean maybeUrl(String file) {
+        // Simple check...is there a letter after a dot? In that case, it might be an URL...
+        // So basically, the comment above qualifies as URL. Well...
         file = file.trim();
         int pos = file.indexOf(".");
         if (pos!=-1 && pos<file.length()-2) {
