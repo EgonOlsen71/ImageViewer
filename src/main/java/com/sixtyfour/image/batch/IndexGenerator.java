@@ -1,4 +1,6 @@
-package com.sixtyfour.image;
+package com.sixtyfour.image.batch;
+
+import com.sixtyfour.image.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

@@ -20,7 +20,7 @@ public class ImageExtractor {
     private static final int MAX_TAG_LENGTH = 500;
     private static final int MAX_PAGE_SIZE = 2048 * 2048;
 
-    public static List<String> extractImages(String url) throws Exception {
+    public List<String> extractImages(String url) throws Exception {
         List<String> images = new ArrayList<>();
         String html;
         String lhtml;
@@ -71,7 +71,7 @@ public class ImageExtractor {
         return images;
     }
 
-    private static void extractImages(String lhtml, String html, String protocol, String domain, String base, List<String> images) {
+    private void extractImages(String lhtml, String html, String protocol, String domain, String base, List<String> images) {
         int pos = -1;
         do {
             pos = lhtml.indexOf("<img ", pos + 1);
@@ -100,7 +100,7 @@ public class ImageExtractor {
         } while (pos != -1);
     }
 
-    private static String getBase(String url, int urlEnd, String lhtml, String html, String protocol) {
+    private String getBase(String url, int urlEnd, String lhtml, String html, String protocol) {
         int pos = lhtml.indexOf("<base ");
         String base = url.substring(0, urlEnd);
         if (pos != -1) {
@@ -125,7 +125,7 @@ public class ImageExtractor {
         return base;
     }
 
-    private static int findDomainEnd(String url, String... endMarker) {
+    private int findDomainEnd(String url, String... endMarker) {
         int domainEnd = url.length();
         int pos = url.indexOf("://") + 3;
         for (String endy : endMarker) {
@@ -138,7 +138,7 @@ public class ImageExtractor {
         return domainEnd;
     }
 
-    private static String getSourceAttribute(String lhtml, String html, int pos, String protocol, String attribute) {
+    private String getSourceAttribute(String lhtml, String html, int pos, String protocol, String attribute) {
         String src = null;
         int endPos0 = lhtml.indexOf("/>", pos);
         int endPos1 = lhtml.indexOf(">", pos);

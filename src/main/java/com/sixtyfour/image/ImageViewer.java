@@ -199,12 +199,13 @@ public class ImageViewer extends HttpServlet {
     private void extractImages(String file, ServletOutputStream os, boolean search) {
         List<String> images;
         try {
+            ImageExtractor iex = new ImageExtractor();
             if (!search) {
                 try {
-                    images = ImageExtractor.extractImages(file);
+                    images = iex.extractImages(file);
                 } catch (SSLHandshakeException e) {
                     Logger.log("https doesn't work, trying http instead...");
-                    images = ImageExtractor.extractImages(file.replace("https:", "http:"));
+                    images = iex.extractImages(file.replace("https:", "http:"));
                 }
             } else {
                 images = GoogleImageExtractor.searchImages(file);
