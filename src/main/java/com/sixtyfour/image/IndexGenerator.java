@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Generates a simple example page out of the images in some directory. This not part
@@ -17,9 +19,9 @@ public class IndexGenerator {
 
         String dir = "C:/Users/EgonOlsen/Desktop/images";
         String html;
-        try (BufferedInputStream bos = new BufferedInputStream(IndexGenerator.class.getResourceAsStream("/template.html")); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        try (BufferedInputStream bos = new BufferedInputStream(Objects.requireNonNull(IndexGenerator.class.getResourceAsStream("/template.html"))); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             bos.transferTo(baos);
-            html = baos.toString("UTF-8");
+            html = baos.toString(StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -35,8 +37,9 @@ public class IndexGenerator {
         }
 
         File target = new File(dir, "index.html");
-        target.delete();
-        try (PrintWriter pw = new PrintWriter(target, "UTF-8")) {
+        boolean ok = target.delete();
+        Logger.log("Deleted: "+ok);
+        try (PrintWriter pw = new PrintWriter(target, StandardCharsets.UTF_8)) {
             pw.print(html);
         } catch (Exception e) {
             throw new RuntimeException(e);

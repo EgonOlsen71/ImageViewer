@@ -117,7 +117,8 @@ public class ImageViewer extends HttpServlet {
 
         String targetFile = UUID.randomUUID() + ext;
         File pathy = new File(path);
-        pathy.mkdirs();
+        boolean ok = pathy.mkdirs();
+        Logger.log("Directory state: "+ok);
         File bin = new File(pathy, targetFile);
 
         file = UrlUtils.encode(file); // (Re-)encode the URL..not sure, why I'm decoding it in the first place, but anyway...

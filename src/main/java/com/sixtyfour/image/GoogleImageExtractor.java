@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -17,7 +18,7 @@ import java.util.*;
 public class GoogleImageExtractor {
 
     // These never work...
-    private static String[] TO_IGNORE = {"redd.it"};
+    private static final String[] TO_IGNORE = {"redd.it"};
 
     private final static LinkedHashMap<String, String> SEARCH_CACHE = new LinkedHashMap<>() {
         protected boolean removeEldestEntry(Map.Entry eldest) {
@@ -45,7 +46,7 @@ public class GoogleImageExtractor {
         List<String> images = new ArrayList<>();
         String html;
         String lhtml;
-        String url = BASE_URL.replace("{0}", cx).replace("{1}", apiKey) + URLEncoder.encode(query, "UTF-8");
+        String url = BASE_URL.replace("{0}", cx).replace("{1}", apiKey) + URLEncoder.encode(query, StandardCharsets.UTF_8);
         long start = System.currentTimeMillis();
 
         if (!SEARCH_CACHE.containsKey(query)) {
@@ -53,7 +54,7 @@ public class GoogleImageExtractor {
             try (InputStream input = new URL(url).openStream(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 input.transferTo(bos);
                 start = System.currentTimeMillis();
-                html = bos.toString("UTF-8");
+                html = bos.toString(StandardCharsets.UTF_8);
                 SEARCH_CACHE.put(query, html);
                 Logger.log("JSON size: " + html.length() + " bytes");
             } catch (java.io.FileNotFoundException e) {
@@ -78,7 +79,7 @@ public class GoogleImageExtractor {
                 int endPos = lhtml.indexOf("\",", pos);
                 if (endPos != -1) {
                     String imgSrc = html.substring(html.indexOf("\"", pos + 7) + 1, endPos);
-                    imgSrc = URLDecoder.decode(imgSrc, "UTF-8");
+                    imgSrc = URLDecoder.decode(imgSrc, StandardCharsets.UTF_8);
                     String iimgSrc = imgSrc.toLowerCase();
                     if (iimgSrc.contains(".jpg") || iimgSrc.contains(".jpeg") || iimgSrc.contains(".png") || iimgSrc.contains(".webp")) {
                         imgSrc = UrlUtils.encode(imgSrc);
