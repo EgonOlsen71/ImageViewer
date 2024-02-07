@@ -122,7 +122,7 @@ public class ImageViewer extends HttpServlet {
 
         file = UrlUtils.encode(file); // (Re-)encode the URL..not sure, why I'm decoding it in the first place, but anyway...
 
-        try (InputStream input = directPdfLink?new FileInputStream(new File(pathy, file.substring(7))):new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
+        try (InputStream input = directPdfLink ? new FileInputStream(new File(pathy, file.substring(7))) : new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
             input.transferTo(fos);
         } catch (java.io.FileNotFoundException e) {
             Logger.log("File not found: " + file, e);
@@ -135,9 +135,9 @@ public class ImageViewer extends HttpServlet {
             String msg = e.getMessage();
             if (msg.contains("code: ")) {
                 int pos = msg.indexOf("code: ");
-                code = msg.substring(pos+6, pos+9).trim();
+                code = msg.substring(pos + 6, pos + 9).trim();
             }
-            printError(os, "Server returned error code: "+code);
+            printError(os, "Server returned error code: " + code);
             delete(bin);
             return;
         } catch (Exception e) {
@@ -201,7 +201,7 @@ public class ImageViewer extends HttpServlet {
             if (!search) {
                 try {
                     images = ImageExtractor.extractImages(file);
-                } catch(SSLHandshakeException e) {
+                } catch (SSLHandshakeException e) {
                     Logger.log("https doesn't work, trying http instead...");
                     images = ImageExtractor.extractImages(file.replace("https:", "http:"));
                 }

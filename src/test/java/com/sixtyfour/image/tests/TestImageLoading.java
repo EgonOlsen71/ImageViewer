@@ -1,7 +1,6 @@
 package com.sixtyfour.image.tests;
 
 import com.sixtyfour.image.UrlUtils;
-import com.sixtyfour.petscii.Bitmap;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
