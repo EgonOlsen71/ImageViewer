@@ -277,8 +277,8 @@ public class ImageViewer extends HttpServlet {
             images = images.subList(0, 22);
             Logger.log("Limited image list to " + images.size());
         }
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try(ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+
             bos.write(new byte[]{1, 1}); // Flag image list to C64
 
             byte[] len = new byte[1];
