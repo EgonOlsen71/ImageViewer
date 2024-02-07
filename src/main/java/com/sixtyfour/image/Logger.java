@@ -3,7 +3,7 @@ package com.sixtyfour.image;
 import java.util.Date;
 
 /**
- * Very simple logging class. Exhance this if needed!
+ * Very simple logging class. Enhance this if needed!
  *
  * @author EgonOlsen
  */

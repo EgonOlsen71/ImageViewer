@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Renders a PDF into images (one per page)
+ * Renders a PDF into images (one per page, 10 pages max)
  */
 public class PdfRenderer {
 
-    public static final String PDF_PNG = ".pdf.png";
+    private static final String PDF_PNG = ".pdf.png";
+    private static final int MAX_PAGES = 10;
+    private static final int DPI = 150;
 
     public List<String> renderPages(String sourcePdf, String targetDir) {
         String td = targetDir;
@@ -50,9 +52,9 @@ public class PdfRenderer {
             Logger.log("Loading PDF: "+sourcePdf);
             PDDocument document = PDDocument.load(is);
             PDFRenderer pdfRenderer = new PDFRenderer(document);
-            for (int i=0; i<document.getNumberOfPages() && i<10; i++) {
+            for (int i = 0; i<document.getNumberOfPages() && i< MAX_PAGES; i++) {
                 Logger.log("Rendering page: "+i);
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 150, ImageType.RGB);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, DPI, ImageType.RGB);
                 Bitmap bmp = new Bitmap(bim);
                 String pdfImageName = name+"_"+i+PDF_PNG;
                 bmp.save(targetDir + pdfImageName);
