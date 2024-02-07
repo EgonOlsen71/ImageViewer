@@ -139,7 +139,7 @@ public class ImageViewer extends HttpServlet {
                 int pos = msg.indexOf("code: ");
                 code = msg.substring(pos + 6, pos + 9).trim();
             }
-            printError(os, "Server returned error code: " + code);
+            printError(os, "Server returned error: " + code);
             delete(bin);
             return;
         } catch (Exception e) {
