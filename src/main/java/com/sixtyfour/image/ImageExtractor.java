@@ -26,6 +26,7 @@ public class ImageExtractor {
         String lhtml;
         long start;
 
+        url = UrlUtils.encode(url);
         try (InputStream input = new URL(url).openStream(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             input.transferTo(bos);
             if (bos.size() > MAX_PAGE_SIZE) {

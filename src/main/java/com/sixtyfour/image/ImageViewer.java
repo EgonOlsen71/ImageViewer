@@ -56,7 +56,7 @@ public class ImageViewer extends HttpServlet {
         ServletOutputStream os = response.getOutputStream();
         os.flush();
 
-        String file = URLDecoder.decode(request.getParameter("file"), StandardCharsets.UTF_8);
+        String file = URLDecoder.decode(request.getParameter("file"), StandardCharsets.UTF_8).trim();
 
         if (URL_SHORTENER.containsKey(file)) {
             Logger.log("Replacing URL " + file + "with " + URL_SHORTENER.get(file));
@@ -74,20 +74,21 @@ public class ImageViewer extends HttpServlet {
         if (dither != null) {
             try {
                 dithy = Float.parseFloat(dither) / 100f;
+                dithy = Math.min(1, Math.max(0, dithy));
             } catch (Exception e) {
                 //
             }
         }
-        dithy = Math.min(1, Math.max(0, dithy));
         Logger.log("Dithering is set to " + dithy);
 
         boolean directPdfLink = file.startsWith("page://");
+        boolean maybeUrl = maybeUrl(file);
 
         if (!directPdfLink) {
             if (file.endsWith(".")) {
                 file = file.substring(0, file.length() - 1);
             }
-            if (file.contains(".") && !file.toLowerCase().startsWith("http")) {
+            if (maybeUrl && !file.toLowerCase().startsWith("http")) {
                 file = "https://" + file;
             }
 
@@ -99,7 +100,7 @@ public class ImageViewer extends HttpServlet {
                     List<String> rendered = new PdfRenderer().renderPages(file, path);
                     transmitImageReferences(os, rendered);
                 } else {
-                    if (file.contains(".")) {
+                    if (maybeUrl) {
                         Logger.log("Trying to extract images from page...");
                         extractImages(file, os, false);
                     } else {
@@ -180,6 +181,16 @@ public class ImageViewer extends HttpServlet {
         }
         os.flush();
         Logger.log("Download and conversion finished!");
+    }
+
+    private boolean maybeUrl(String file) {
+        file = file.trim();
+        int pos = file.indexOf(".");
+        if (pos!=-1 && pos<file.length()-2) {
+            char c=file.charAt(pos+1);
+            return Character.isAlphabetic(c);
+        }
+        return false;
     }
 
     private String getType(String file) {

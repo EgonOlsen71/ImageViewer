@@ -10,12 +10,15 @@ import java.nio.charset.StandardCharsets;
  */
 public class UrlUtils {
 
-    public static String encode(String imgSrc) {
+    public static String encode(String url) {
         try {
+            if (url.contains("%")) {
+                return url;
+            }
             //@todo improve this hack...
-            return URLEncoder.encode(imgSrc, StandardCharsets.UTF_8).replace("%3A", ":").replace("%2F", "/").replace("%3B", ";").replace("%26", "&").replace("%3F", "?");
+            return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("%3A", ":").replace("%2F", "/").replace("%3B", ";").replace("%26", "&").replace("%3F", "?");
         } catch (Exception e) {
-            return imgSrc;
+            return url;
         }
     }
 
