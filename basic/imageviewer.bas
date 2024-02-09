@@ -303,11 +303,13 @@
 57020 print "Enter img/pdf URL. You can omit https://";
 57022 print "{down}If you enter a page URL instead of an"
 57024 print "image URL, you can choose between the"
-57026 print "first 22 unique images on that page."
+57026 print "first 22 unique images on that page.{down}"
 57027 print "If you enter a single word or sentence,"
 57028 print "the first 10 results of an image search"
-57029 print "will be returned."
-57037 print "{down}Type {95} for underscore, RETURN to"
+57029 print "will be returned.{down}"
+57030 print "If you start with ai:, you get two ai"
+57031 print "generated images, e.g. ai:a sleeping cat"
+57037 print "Type {95} for underscore, RETURN to"
 57038 print "repeat the last URL and x to exit"
 57040 print "the program!{2*down}"
 57050 poke 646,1:print "Image URL: ";:gosub 58000:iu$=b$

@@ -1,7 +1,6 @@
 package com.sixtyfour.image;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -27,26 +26,13 @@ public class GoogleImageExtractor {
     };
 
     private final static String BASE_URL = "https://www.googleapis.com/customsearch/v1?safe=off&cx={0}&key={1}&searchType=image&hq=1&filter=1&q=";
-    private static String cx;
-    private static String apiKey;
-
-    static {
-        try {
-            Properties props = new Properties();
-            props.load(new FileInputStream("/webdata/imageviewer/apikey.ini"));
-            cx = props.getProperty("cx");
-            apiKey = props.getProperty("key");
-        } catch (Exception e) {
-            Logger.log("Failed to load Google-API-Properties!", e);
-        }
-    }
+    private static Config config = new Config();
 
     public static List<String> searchImages(String query) throws Exception {
-
         List<String> images = new ArrayList<>();
         String html;
         String lhtml;
-        String url = BASE_URL.replace("{0}", cx).replace("{1}", apiKey) + URLEncoder.encode(query, StandardCharsets.UTF_8);
+        String url = BASE_URL.replace("{0}", config.getCx()).replace("{1}", config.getGoogleApiKey()) + URLEncoder.encode(query, StandardCharsets.UTF_8);
         long start = System.currentTimeMillis();
 
         if (!SEARCH_CACHE.containsKey(query)) {

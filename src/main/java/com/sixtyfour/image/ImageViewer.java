@@ -102,10 +102,15 @@ public class ImageViewer extends HttpServlet {
                 } else {
                     if (maybeUrl) {
                         Logger.log("Trying to extract images from page...");
-                        extractImages(file, os, false);
+                        extractImages(file, os, ImageMode.WEB);
                     } else {
-                        Logger.log("Searching for images on Google...");
-                        extractImages(file, os, true);
+                        if (lfile.startsWith("ai:") || lfile.startsWith("ki:")) {
+                            Logger.log("Generating images with OpenAI...");
+                            extractImages(file, os, ImageMode.AI);
+                        } else {
+                            Logger.log("Searching for images on Google...");
+                            extractImages(file, os, ImageMode.SEARCH);
+                        }
                     }
                 }
                 return;
@@ -209,34 +214,42 @@ public class ImageViewer extends HttpServlet {
         return lFile.substring(file.lastIndexOf("."));
     }
 
-    private void extractImages(String file, ServletOutputStream os, boolean search) {
-        List<String> images;
+    private void extractImages(String query, ServletOutputStream os, ImageMode mode) {
+        List<String> images = null;
         try {
-            ImageExtractor iex = new ImageExtractor();
-            if (!search) {
+            if (mode==ImageMode.WEB) {
+                ImageExtractor iex = new ImageExtractor();
                 try {
-                    images = iex.extractImages(file);
+                    images = iex.extractImages(query);
                 } catch (SSLHandshakeException e) {
                     Logger.log("https doesn't work, trying http instead...");
-                    images = iex.extractImages(file.replace("https:", "http:"));
+                    images = iex.extractImages(query.replace("https:", "http:"));
                 }
-            } else {
-                images = GoogleImageExtractor.searchImages(file);
             }
+            if (mode == ImageMode.SEARCH) {
+                images = GoogleImageExtractor.searchImages(query);
+            }
+            if (mode == ImageMode.AI) {
+                images = AiImageGenerator.createImages(query);
+            }
+        } catch (OpenAiException e) {
+            Logger.log("Invalid query: " + query, e);
+            printError(os, e.getMessage().replace("_", " "));
+            return;
         } catch (FileNotFoundException e) {
-            Logger.log("URL not found: " + file, e);
+            Logger.log("URL not found: " + query, e);
             printError(os, "URL not found!");
             return;
         } catch (UnknownHostException e) {
-            Logger.log("Unknown host: " + file, e);
+            Logger.log("Unknown host: " + query, e);
             printError(os, "Unknown host!");
             return;
         } catch (java.net.SocketException e) {
-            Logger.log("Network is unreachable: " + file, e);
+            Logger.log("Network is unreachable: " + query, e);
             printError(os, "Network is unreachable (local?)!");
             return;
         } catch (Exception e) {
-            Logger.log("Failed to extract images from " + file, e);
+            Logger.log("Failed to extract images from " + query, e);
             printError(os, "No valid images found!");
             return;
         }
