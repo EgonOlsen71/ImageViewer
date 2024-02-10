@@ -82,7 +82,7 @@ public class ImageViewer extends HttpServlet {
         Logger.log("Dithering is set to " + dithy);
 
         boolean directPdfLink = file.startsWith("page://");
-        boolean maybeUrl = maybeUrl(file);
+        boolean maybeUrl = UrlUtils.maybeUrl(file);
 
         if (!directPdfLink) {
             if (file.endsWith(".")) {
@@ -104,7 +104,7 @@ public class ImageViewer extends HttpServlet {
                         Logger.log("Trying to extract images from page...");
                         extractImages(file, os, ImageMode.WEB);
                     } else {
-                        if (lfile.startsWith("ai:") || lfile.startsWith("ki:")) {
+                        if (UrlUtils.isAiPrompt(lfile)) {
                             Logger.log("Generating images with OpenAI...");
                             extractImages(file, os, ImageMode.AI);
                         } else {
@@ -186,18 +186,6 @@ public class ImageViewer extends HttpServlet {
         }
         os.flush();
         Logger.log("Download and conversion finished!");
-    }
-
-    private boolean maybeUrl(String file) {
-        // Simple check...is there a letter after a dot? In that case, it might be an URL...
-        // So basically, the comment above qualifies as URL. Well...
-        file = file.trim();
-        int pos = file.indexOf(".");
-        if (pos!=-1 && pos<file.length()-2) {
-            char c=file.charAt(pos+1);
-            return Character.isAlphabetic(c);
-        }
-        return false;
     }
 
     private String getType(String file) {

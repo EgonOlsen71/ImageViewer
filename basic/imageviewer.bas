@@ -66,8 +66,8 @@
 21530 return
 
 22000 rem change target drive
-22010 dn%=dn%+da%:if dn%=12 then dn%=8
-22015 if dn%=7 then dn%=11
+22010 dn%=dn%+da%:if dn%=16 then dn%=8
+22015 if dn%=7 then dn%=15
 22020 return
 
 23000 rem print system info

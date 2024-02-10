@@ -24,7 +24,7 @@ public class AiImageGenerator {
     public static List<String> createImages(String query) throws Exception {
         List<String> ret = new ArrayList<>();
 
-        if (query.startsWith("ai:") || query.startsWith("ki:")) {
+        if (UrlUtils.isAiPrompt(query)) {
             query = query.substring(3).trim();
         }
         query = query.replace("\n", " ").replace("\r", " ").replace("\"", "'");

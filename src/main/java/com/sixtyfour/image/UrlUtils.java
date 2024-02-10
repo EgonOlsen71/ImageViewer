@@ -22,4 +22,27 @@ public class UrlUtils {
         }
     }
 
+    public static boolean isAiPrompt(String url) {
+        if (url==null) {
+            return false;
+        }
+        String lurl = url.toLowerCase().trim();
+        return (lurl.startsWith("ai:") || lurl.startsWith("ki:")) && lurl.length()>4;
+    }
+
+    public static boolean maybeUrl(String file) {
+        // Simple check...is there a letter after a dot? In that case, it might be an URL...
+        // So basically, the comment above qualifies as URL. Well, except for ai: prompts
+        if (isAiPrompt(file)) {
+            return false;
+        }
+        file = file.trim();
+        int pos = file.indexOf(".");
+        if (pos!=-1 && pos<file.length()-2) {
+            char c=file.charAt(pos+1);
+            return Character.isAlphabetic(c);
+        }
+        return false;
+    }
+
 }
