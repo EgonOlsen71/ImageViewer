@@ -14,6 +14,8 @@ public class Config {
 
     private String cx;
 
+    private String dalle3secret;
+
     public Config() {
         try {
             Properties props = new Properties();
@@ -21,6 +23,7 @@ public class Config {
             cx = props.getProperty("cx");
             googleApiKey = props.getProperty("key");
             openApiKey = props.getProperty("openapikey");
+            dalle3secret =props.getProperty("dalle3secret");
         } catch(Exception e)  {
             Logger.log("Failed to load Properties!", e);
             throw new RuntimeException(e);
@@ -37,5 +40,9 @@ public class Config {
 
     public String getCx() {
         return cx;
+    }
+
+    public String getDalle3secret() {
+        return dalle3secret;
     }
 }

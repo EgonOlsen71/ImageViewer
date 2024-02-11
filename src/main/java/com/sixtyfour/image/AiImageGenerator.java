@@ -19,6 +19,7 @@ public class AiImageGenerator {
 
     private final static String BASE_URL = "https://api.openai.com/v1/images/generations";
     private final static String JSON = "{\"model\":\"dall-e-2\",\"prompt\":\"{0}\",\"n\": 2,\"size\":\"256x256\" }";
+    private final static String JSON_DALLE3 = "{\"model\":\"dall-e-3\",\"prompt\":\"{0}\",\"n\": 1,\"size\":\"1024x1024\" }";
     private static Config config = new Config();
 
     public static List<String> createImages(String query) throws Exception {
@@ -28,13 +29,21 @@ public class AiImageGenerator {
             query = query.substring(3).trim();
         }
         query = query.replace("\n", " ").replace("\r", " ").replace("\"", "'");
-        String json = JSON.replace("{0}", query);
+        String json = JSON;
+        String secret = config.getDalle3secret();
+        if (query.contains(secret)) {
+            query = query.replace(secret, " ").trim();
+            json = JSON_DALLE3;
+            Logger.log("Secret DALL-E3 mode activated!");
+        }
+        json = json.replace("{0}", query);
 
         Logger.log("AI query: "+query);
 
         HttpURLConnection con = null;
         String resp = "";
         try {
+            Logger.log("Calling OpenAI-API...");
             URL url = new URL(BASE_URL);
             con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
@@ -60,6 +69,11 @@ public class AiImageGenerator {
             if (con!=null) {
                 con.disconnect();
             }
+        }
+
+        if (resp==null || resp.length()==0) {
+            Logger.log("No images generated!?");
+            throw new OpenAiException("AI timeout!");
         }
 
         ObjectMapper mapper = new ObjectMapper();
