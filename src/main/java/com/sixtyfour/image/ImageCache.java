@@ -17,6 +17,11 @@ public class ImageCache {
         }
     };
 
+    public static synchronized  void clear() {
+        Logger.log("Clearing image cache!");
+        IMAGE_CACHE.clear();
+    }
+
     public static synchronized void put(String key, Blob data) {
         data.setTime(System.currentTimeMillis());
         IMAGE_CACHE.put(key, data);

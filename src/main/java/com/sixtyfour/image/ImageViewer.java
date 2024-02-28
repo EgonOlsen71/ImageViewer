@@ -57,6 +57,11 @@ public class ImageViewer extends HttpServlet {
         ServletOutputStream os = response.getOutputStream();
         os.flush();
 
+        String clear = request.getParameter("clear");
+        if (clear != null) {
+            ImageCache.clear();
+        }
+
         String file = URLDecoder.decode(request.getParameter("file"), StandardCharsets.UTF_8).trim();
 
         if (URL_SHORTENER.containsKey(file)) {
