@@ -92,7 +92,7 @@ public class ImageViewer extends HttpServlet {
         if (blob == null) {
             blob = convert(file, path, os, dithy, keepRatio);
             if (blob == null) {
-                // No image but a file list.
+                // No image but a file list...
                 return;
             }
             ImageCache.put(key, blob);

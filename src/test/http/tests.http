@@ -6,3 +6,7 @@ GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jpct.de/river/error.j
 
 ###
 GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jpct.de/river/&ar=true&dither=50
+
+###
+GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jsdfdfsspct.de/river/&ar=true&dither=50
+
