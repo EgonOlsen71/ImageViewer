@@ -53,6 +53,7 @@ public class ImageViewer extends HttpServlet {
         String path = sc.getInitParameter("imagepath");
 
         response.setHeader("WiC64", "true");
+        response.setContentType("application/octet-stream");
         ServletOutputStream os = response.getOutputStream();
         os.flush();
 
@@ -81,6 +82,41 @@ public class ImageViewer extends HttpServlet {
         }
         Logger.log("Dithering is set to " + dithy);
 
+        String key = ImageCache.getKey(file, dithy, keepRatio);
+        Blob blob = ImageCache.get(key);
+        if (blob == null) {
+            blob = convert(file, path, os, dithy, keepRatio);
+            if (blob == null) {
+                // No image but a file list.
+                return;
+            }
+            ImageCache.put(key, blob);
+            if (blob.isError()) {
+                // The actual error has already been transmitted by the convert()-method
+                return;
+            }
+        }
+        if (blob.isError()) {
+            // Cached error, re-transmit it...
+            printError(os, blob.getError());
+            return;
+        }
+
+        try (InputStream is = blob.getAsStream()) {
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + blob.getTarget());
+            // Transfer whole blob...
+            is.transferTo(os);
+        } catch (Exception e) {
+            Logger.log("Failed to transfer file: " + blob.getSource(), e);
+            return;
+        } 
+        os.flush();
+        Logger.log("Download and conversion finished!");
+    }
+
+    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio) {
+        Blob blob;
         boolean directPdfLink = file.startsWith("page://");
         boolean maybeUrl = UrlUtils.maybeUrl(file);
 
@@ -113,7 +149,7 @@ public class ImageViewer extends HttpServlet {
                         }
                     }
                 }
-                return;
+                return null;
             }
         }
 
@@ -124,18 +160,17 @@ public class ImageViewer extends HttpServlet {
         String targetFile = UUID.randomUUID() + ext;
         File pathy = new File(path);
         boolean ok = pathy.mkdirs();
-        Logger.log("Directory state: "+ok);
+        Logger.log("Directory state: " + ok);
         File bin = new File(pathy, targetFile);
 
         file = UrlUtils.encode(file); // (Re-)encode the URL..not sure, why I'm decoding it in the first place, but anyway...
 
         try (InputStream input = directPdfLink ? new FileInputStream(new File(pathy, file.substring(7))) : new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
             input.transferTo(fos);
-        } catch (java.io.FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Logger.log("File not found: " + file, e);
-            printError(os, "Image not found!");
             delete(bin);
-            return;
+            return printError(os, "Image not found!");
         } catch (IOException e) {
             Logger.log("IO error while loading image: " + file, e);
             String code = "???";
@@ -144,14 +179,12 @@ public class ImageViewer extends HttpServlet {
                 int pos = msg.indexOf("code: ");
                 code = msg.substring(pos + 6, pos + 9).trim();
             }
-            printError(os, "Server returned error: " + code);
             delete(bin);
-            return;
+            return printError(os, "Server returned error: " + code);
         } catch (Exception e) {
             Logger.log("Failed to load image: " + file, e);
-            printError(os, "Failed to load image!");
             delete(bin);
-            return;
+            return printError(os, "Failed to load image!");
         }
 
         String fileName = bin.toString();
@@ -164,28 +197,24 @@ public class ImageViewer extends HttpServlet {
             delete(bin);
             Logger.log("Failed to convert image: " + file, e);
             if (e.getMessage() != null) {
-                printError(os, e.getMessage());
+                return printError(os, e.getMessage());
             } else {
-                printError(os, "Failed to convert image!");
+                return printError(os, "Failed to convert image!");
             }
-            return;
         }
 
+        blob = new Blob(targetFile, file);
         try (FileInputStream fis = new FileInputStream(targetBin)) {
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition",
-                    "attachment; filename=" + targetFile);
-            // Transfer whole file...
-            fis.transferTo(os);
+            // Store file data in blob...
+            blob.fill(fis);
         } catch (Exception e) {
-            Logger.log("Failed to transfer file: " + file, e);
-            return;
+            Logger.log("Failed to fill blob: " + file, e);
+            blob = printError(os, "Cache error!");
         } finally {
             delete(targetBin);
             delete(bin);
         }
-        os.flush();
-        Logger.log("Download and conversion finished!");
+        return blob;
     }
 
     private String getType(String file) {
@@ -307,13 +336,15 @@ public class ImageViewer extends HttpServlet {
         Logger.log("Status: " + ok1);
     }
 
-    public void printError(ServletOutputStream os, String text) {
+    public Blob printError(ServletOutputStream os, String text) {
         try {
             os.print((char) 0);
             os.print((char) 0);
             os.print("ERROR: " + text);
+            return new Blob(text);
         } catch (Exception e) {
             Logger.log("Failed to write error into stream!", e);
+            return null;
         }
     }
 }

@@ -1,0 +1,5 @@
+###
+GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jpct.de/river/woman.jpg&ar=true&dither=50
+
+###
+GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jpct.de/river/error.jpg&ar=true&dither=50
