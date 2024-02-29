@@ -163,7 +163,7 @@
 
 43000 rem fatal error
 43010 print:print mg$
-43020 gosub 10000
+43020 if sm%=0 then gosub 10000
 43025 if pu%>1 then if dr%=0 then gosub 43500
 43030 er%=1:return
 
@@ -173,8 +173,11 @@
 43530 return
 
 44000 rem download file
-44005 print chr$(147);"Loading image...";
-44006 if pu%>1 then poke 646,7:print:print "{down}Press CRSR left/right to switch image...":poke 646,1
+44005 print chr$(147);"Loading image...";:if pu%=0 then 44020
+44006 poke 646,7:print:print "{down}Press CRSR left/right to switch image..."
+44010 poke 646,5:if sm%=0 then print "Press 1,2...9 for slideshow mode...":goto 44020
+44015 print "Slideshow active,";sm%;"sec. delay!"
+44020 poke 646,1
 44025 gosub 44500
 44030 gosub 46500:gosub 41500:if iu$="" then er%=1:return
 44050 gosub 45000
@@ -235,32 +238,41 @@
 
 52000 rem display loaded image
 52005 if dr%<>0 then a%=157:if dr%=1 then a%=29
-52006 if dr%<>0 then 52152
-52010 poke 198,0:poke 56576,(peek(56576) and 252) or 2
-52020 ol%=peek(53272):poke 53272,120
-52030 poke 53270,216
-52035 poke 53265,peek(53265) or 32
-52040 poke 53280,peek(34576)
-52050 poke 53281,peek(34576)
-52060 rem [ ldx #251 ]
-52065 rem [loopy; lda 32575,x; sta 23551,x]
-52070 rem [lda 32825,x; sta 23801,x; lda 33075,x; sta 24051,x]
-52075 rem [lda 33325,x; sta 24301,x;]
-52080 rem [lda 33575,x; sta 55295,x; lda 33825,x; sta 55545,x]
-52085 rem [lda 34075,x; sta 55795,x; lda 34325,x; sta 56045,x]
-52090 rem [dex; bne loopy]
-52095 get a$:if a$="" then 52095
-52096 a%=asc(a$)
-52100 poke 56576,(peek(56576) and 252) or 3
+52006 if dr%<>0 then 52153
+52008 rem [ ldx #251 ]
+52010 rem [loopy; lda 32575,x; sta 23551,x]
+52012 rem [lda 32825,x; sta 23801,x; lda 33075,x; sta 24051,x]
+52014 rem [lda 33325,x; sta 24301,x;]
+52016 rem [lda 33575,x; sta 55295,x; lda 33825,x; sta 55545,x]
+52018rem [lda 34075,x; sta 55795,x; lda 34325,x; sta 56045,x]
+52020 rem [dex; bne loopy]
+52030 poke 53265,peek(53265) and 239
+52040 poke 198,0:poke 56576,(peek(56576) and 252) or 2
+52050 ol%=peek(53272):poke 53272,120
+52060 poke 53270,216
+52070 poke 53280,peek(34576)
+52080 poke 53281,peek(34576)
+52085 if peek(53266)<200 then 52085
+52090 poke 53265,peek(53265) or 48
+52092 if sm%>0 then ti$="000000"
+52095 get a$:if sm%>0 then if ti/60>sm% then a$=chr$(29)
+52096 if a$="" then 52095
+52098 a%=asc(a$)
+52099 if pu%>0 then if a%>48 then if a%<59 then sm%=a%-48:goto 52092
+52100 poke 53265,peek(53265) and 207
+52105 poke 56576,(peek(56576) and 252) or 3
 52110 poke 53272,ol%
-52130 poke 53265,peek(53265) and 223
 52140 poke 53270,peek(53270) and 239
 52150 poke 646,1:print chr$(147);
-52152 if pu%>0 then if a%=29 or a%=157 then gosub 52160:goto 52500
-52154 return
+52151 if peek(53266)<200 then 52151
+52152 poke 53265,peek(53265) or 16
+52153 if pu%>0 then if a%=29 or a%=157 then gosub 52160:goto 52500
+52154 sm%=0:return
 52160 rem switch image
 52170 dr%=1:if a%=157 then dr%=-1:iu%=iu%-1:goto 52180
 52175 iu%=iu%+1
+52176 if sm%=0 then 52180
+52177 if iu%=pu% then iu%=0:goto 52200
 52180 if iu%<0 then iu%=0:gosub 53000:return
 52190 if iu%=pu% then iu%=pu%-1:gosub 53000:return
 52200 iu$=pu$(iu%):er%=0:gosub 1000:gosub 44000:return
@@ -354,7 +366,7 @@
 
 62000 rem init
 62050 dim pu$(22):ou$="":ks%=1:ds%=1:ar%=1
-62060 gu$=""
+62060 gu$="":sm%=0
 62065 dim bv$(1):bv$(0)="no":bv$(1)="yes"
 62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0"
 62080 dd%=0:i%=0:pu%=0:dr%=0: rem setup conversion table
