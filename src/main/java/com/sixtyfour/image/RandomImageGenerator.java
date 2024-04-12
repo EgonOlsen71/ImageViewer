@@ -33,7 +33,7 @@ public class RandomImageGenerator extends HttpServlet {
         String org = query;
         query = "an image depicting "+query+". ";
         query += org+" is located at "+WordList.getRandomWord();
-        query += " and also "+WordList.getRandomWord()+" amoung "+WordList.getRandomWord()+"."+WordList.getRandomWord();
+        query += " and also "+WordList.getRandomWord()+" among "+WordList.getRandomWord()+"."+WordList.getRandomWord();
 
         String[] fillers = {" and in ", " seems to ", " may ", " and ", " or ", " but ", " except for ", " on a ", " behind a ", " in front of ", " but not ", " gazing at "};
 
