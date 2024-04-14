@@ -48,7 +48,7 @@ public class RandomImageGenerator extends HttpServlet {
         try {
             Logger.log("Query is: "+query);
             List<String> images = AiImageGenerator.createImages(query);
-            images.forEach(p -> pw.println(p));
+            images.forEach(p -> pw.print(p));
         } catch (Exception a) {
             Logger.log("Failed to create image!", a);
             pw.println("Failed to create image: "+a);
