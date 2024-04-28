@@ -98,7 +98,7 @@
 56130 goto 56050
 
 56500 rem calculate down and tab
-56510 ta%=22*(dc% and 1)
+56510 ta%=21*(dc% and 1)
 56520 dc%=dc%/2+2
 56530 dp$=left$("{25*down}", dc%)
 56540 print chr$(19);tab(ta%);dp$;:return
@@ -118,7 +118,7 @@
 58005 print chr$(147);
 58010 if fc%=0 then print "No koala painter images found!":gosub 11000:run
 58015 poke 646,7:print "CRSR: select, RETURN: load, F8: back{down}":poke 646,1
-58020 for i=0 to fc%-1:t%=22*(i and 1)
+58020 for i=0 to fc%-1:t%=21*(i and 1)
 58030 print tab(t%);chr$(34);ff$(i);chr$(34);
 58035 if t%>0 then print
 58040 next:return
