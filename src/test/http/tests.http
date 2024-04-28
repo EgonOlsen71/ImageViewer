@@ -10,3 +10,6 @@ GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jpct.de/river/&ar=tru
 ###
 GET http://localhost:8080/ImageViewer_war/ImageViewer?file=jsdfdfsspct.de/river/&ar=true&dither=50
 
+###
+GET http://localhost:8080/ImageViewer_war/ImageViewer?file=www.frankenpfalz.de/images/com_osgallery/gal-17/original/9-nh-grotte7-p1070251-distlergrotte-fotovf8DA92A05-AF08-E7FC-0E78-CFD61721D694.jpg/&ar=true&dither=50
+

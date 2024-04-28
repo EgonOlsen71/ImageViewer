@@ -49,6 +49,7 @@ public class ImageViewer extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        setUserAgent();
         ServletConfig sc = getServletConfig();
         String path = sc.getInitParameter("imagepath");
 
@@ -120,6 +121,11 @@ public class ImageViewer extends HttpServlet {
         Logger.log("Download and conversion finished!");
     }
 
+    private static void setUserAgent() {
+        System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
+        System.setProperty("https.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
+    }
+
     private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio) {
         Blob blob;
         boolean directPdfLink = file.startsWith("page://");
@@ -170,6 +176,7 @@ public class ImageViewer extends HttpServlet {
 
         file = UrlUtils.encode(file); // (Re-)encode the URL..not sure, why I'm decoding it in the first place, but anyway...
 
+        setUserAgent();
         try (InputStream input = directPdfLink ? new FileInputStream(new File(pathy, file.substring(7))) : new URL(file).openStream(); FileOutputStream fos = new FileOutputStream(bin)) {
             input.transferTo(fos);
         } catch (FileNotFoundException e) {
