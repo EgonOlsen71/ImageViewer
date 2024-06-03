@@ -79,9 +79,14 @@ public class AiImageGenerator {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> map = mapper.readValue(resp, Map.class);
         if (map.containsKey("error")) {
-            String msg = ((Map) map.get("error")).get("code").toString();
-            Logger.log("OpenAI returned error: "+msg);
-            throw new OpenAiException(msg);
+            try {
+                String msg = ((Map) map.get("error")).get("code").toString();
+                Logger.log("OpenAI returned error: " + msg);
+                throw new OpenAiException(msg);
+            } catch(Exception e) {
+                Logger.log("OpenAI returned: " + resp);
+                throw new OpenAiException("Failed to access OpenAI!");
+            }
         }
 
         List<Map> data = (List<Map>) map.get("data");
