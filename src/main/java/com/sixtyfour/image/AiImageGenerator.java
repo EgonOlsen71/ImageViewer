@@ -83,6 +83,8 @@ public class AiImageGenerator {
                 String msg = ((Map) map.get("error")).get("code").toString();
                 Logger.log("OpenAI returned error: " + msg);
                 throw new OpenAiException(msg);
+            } catch (OpenAiException oe) {
+                throw oe;
             } catch(Exception e) {
                 Logger.log("OpenAI returned: " + resp);
                 throw new OpenAiException("Failed to access OpenAI!");
