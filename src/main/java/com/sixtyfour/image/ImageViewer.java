@@ -70,6 +70,12 @@ public class ImageViewer extends HttpServlet {
             file = URL_SHORTENER.get(file);
         }
 
+        if (file.startsWith("empty:")) {
+            Logger.log("Sending empty reply!");
+            os.flush();
+            return;
+        }
+
         String dither = request.getParameter("dither");
         boolean keepRatio = Boolean.parseBoolean(request.getParameter("ar"));
         if (file.contains("..") || file.contains("\\") || file.startsWith("/")) {

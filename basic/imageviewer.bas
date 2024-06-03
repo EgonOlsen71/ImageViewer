@@ -137,7 +137,14 @@
 41510 gosub 55100
 41520 gosub 41800
 41550 gosub 46000:if le% then gosub 56200
-41560 br%=peek(169)+256*peek(170):return
+41560 br%=peek(169)+256*peek(170)
+41570 if br%=0 then gosub 41600
+41580 return
+
+41600 rem handle empty reply
+41610 print:print "Empty reply from server!?"
+41620 gosub 10000
+41630 iu$="":er%=1:return
 
 41800 rem send basic request
 41810 poke 171,tt%:sys us,bu
@@ -180,7 +187,7 @@
 44020 poke 646,1
 44025 gosub 44500
 44030 gosub 46500:gosub 41500:if iu$="" then er%=1:return
-44050 gosub 45000
+44050 print br%:gosub 45000
 44060 return
 
 44500 rem contruct download url
