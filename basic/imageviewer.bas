@@ -187,7 +187,7 @@
 44020 poke 646,1
 44025 gosub 44500
 44030 gosub 46500:gosub 41500:if iu$="" then er%=1:return
-44050 print br%:gosub 45000
+44050 gosub 45000
 44060 return
 
 44500 rem contruct download url
