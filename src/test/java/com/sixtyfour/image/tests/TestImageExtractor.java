@@ -8,6 +8,9 @@ public class TestImageExtractor {
 
     public static void main(String[] args) throws Exception {
         ImageExtractor iex = new ImageExtractor();
+        List<String> images = iex.extractImages("https://gamestar.de");
+        listImages(images);
+        /*
         List<String> images = iex.extractImages("https://spiegel.de");
         listImages(images);
         images = iex.extractImages("https://buecher.schluetersche.de/de/veterinaermedizin/gross-nutztier/");
@@ -24,6 +27,8 @@ public class TestImageExtractor {
         listImages(images);
         images = iex.extractImages("https://crpgaddict.blogspot.com");
         listImages(images);
+        */
+
 
     }
 

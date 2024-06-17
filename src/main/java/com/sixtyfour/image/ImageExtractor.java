@@ -2,6 +2,7 @@ package com.sixtyfour.image;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class ImageExtractor {
         long start;
 
         url = UrlUtils.encode(url);
+        HttpURLConnection.setFollowRedirects(true);
         try (InputStream input = new URL(url).openStream(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             input.transferTo(bos);
             if (bos.size() > MAX_PAGE_SIZE) {
@@ -69,6 +71,12 @@ public class ImageExtractor {
 
         Logger.log("Page parsed in " + (System.currentTimeMillis() - start) + "ms");
         Logger.log("Images found: " + images.size());
+
+        if (images.size()==0 && html.length()<1000) {
+            Logger.log("Looks like as if a redirect got ignored...");
+            throw new IgnoredRedirectException();
+        }
+
         return images;
     }
 

@@ -259,6 +259,15 @@ public class ImageViewer extends HttpServlet {
                 } catch (SSLHandshakeException e) {
                     Logger.log("https doesn't work, trying http instead...");
                     images = iex.extractImages(query.replace("https:", "http:"));
+                } catch (IgnoredRedirectException ee) {
+                    Logger.log("trying with/out www....");
+                    if (query.contains("www.")) {
+                        Logger.log("Removing www...");
+                        images = iex.extractImages(query.replace("www.", ""));
+                    } else {
+                        Logger.log("Adding www...");
+                        images = iex.extractImages(query.replace("://", "://www."));
+                    }
                 }
             }
             if (mode == ImageMode.SEARCH) {
