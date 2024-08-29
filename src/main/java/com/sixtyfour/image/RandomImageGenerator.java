@@ -30,17 +30,7 @@ public class RandomImageGenerator extends HttpServlet {
             return;
         }
         String query = request.getParameter("query");
-        String org = query;
-        query = "an image depicting "+query+". ";
-        query += org+" is located at "+WordList.getRandomWord();
-        query += " and also "+WordList.getRandomWord()+" among "+WordList.getRandomWord()+"."+WordList.getRandomWord();
-
-        String[] fillers = {" and in ", " seems to ", " may ", " and ", " or ", " but ", " except for ", " on a ", " behind a ", " in front of ", " but not ", " gazing at "};
-
-        for (int i=0; i<8; i++) {
-            String word = WordList.getRandomWord();
-            query += fillers[(int) (Math.random()*fillers.length)]+ word;
-        }
+        query = WordList.generateWordSoup(query);
 
         PrintWriter pw = response.getWriter();
 

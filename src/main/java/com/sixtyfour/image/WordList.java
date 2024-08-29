@@ -36,4 +36,19 @@ public class WordList {
         return words.get((int) (Math.random()*words.size()));
     }
 
+    public static String generateWordSoup(String query) {
+        String org = query;
+        query = "an image depicting "+ query +". ";
+        query += org +" is located at "+WordList.getRandomWord();
+        query += " and also "+WordList.getRandomWord()+" among "+WordList.getRandomWord()+"."+WordList.getRandomWord();
+
+        String[] fillers = {" and in ", " seems to ", " looks like ", " and ", " or ", " but ", " except for ", " on a ", " behind a ", " in front of ", " but only ", " gazing at ", " looking at ", " on top of ", " below a "};
+
+        for (int i=0; i<8; i++) {
+            String word = WordList.getRandomWord();
+            query += fillers[(int) (Math.random()*fillers.length)]+ word;
+        }
+        return query+"!";
+    }
+
 }

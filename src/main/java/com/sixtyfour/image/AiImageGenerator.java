@@ -35,13 +35,17 @@ public class AiImageGenerator {
         query = query.replace("\n", " ").replace("\r", " ").replace("\"", "'");
         String json = JSON_DALLE3;
         String secret = config.getDalle2secret();
-        boolean dalle3Mode=true;
         if (query.contains(secret)) {
             query = query.replace(secret, " ").trim();
             json = JSON_DALLE2;
-            dalle3Mode=false;
             Logger.log("Secret fallback to DALL-E2 activated!");
         }
+
+        if (query.contains("(random)")) {
+            query = WordList.generateWordSoup(WordList.getRandomWord());
+            Logger.log("Generated ai query is: "+query);
+        }
+
         json = json.replace("{0}", query);
 
         if (squared) {
