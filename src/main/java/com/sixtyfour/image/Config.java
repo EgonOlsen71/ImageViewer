@@ -14,7 +14,7 @@ public class Config {
 
     private String cx;
 
-    private String dalle3secret;
+    private String dalle2secret;
 
     private String generatorKey;
 
@@ -25,7 +25,7 @@ public class Config {
             cx = props.getProperty("cx");
             googleApiKey = props.getProperty("key");
             openApiKey = props.getProperty("openapikey");
-            dalle3secret =props.getProperty("dalle3secret");
+            dalle2secret =props.getProperty("dalle2secret");
             generatorKey = props.getProperty("generator.key");
         } catch(Exception e)  {
             Logger.log("Failed to load Properties!", e);
@@ -45,8 +45,8 @@ public class Config {
         return cx;
     }
 
-    public String getDalle3secret() {
-        return dalle3secret;
+    public String getDalle2secret() {
+        return dalle2secret;
     }
 
     public String getGeneratorKey() {

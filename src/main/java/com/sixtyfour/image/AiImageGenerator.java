@@ -13,30 +13,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Generates images using OpenAI/DALL-E (2, for cost reasons!)
+ * Generates images using OpenAI/DALL-E 3
  */
 public class AiImageGenerator {
 
     private final static String BASE_URL = "https://api.openai.com/v1/images/generations";
-    private final static String JSON = "{\"model\":\"dall-e-2\",\"prompt\":\"{0}\",\"n\": 2,\"size\":\"256x256\" }";
-    private final static String JSON_DALLE3 = "{\"model\":\"dall-e-3\",\"prompt\":\"{0}\",\"n\": 1,\"size\":\"1024x1024\" }";
+    private final static String JSON_DALLE2 = "{\"model\":\"dall-e-2\",\"prompt\":\"{0}\",\"n\": 2,\"size\":\"256x256\" }";
+    private final static String JSON_DALLE3 = "{\"model\":\"dall-e-3\",\"prompt\":\"{0}\",\"n\": 1,\"size\":\"{1}\" }";
     private static Config config = new Config();
 
     public static List<String> createImages(String query) throws Exception {
+        return createImages(query, true);
+    }
+
+    public static List<String> createImages(String query, boolean squared) throws Exception {
         List<String> ret = new ArrayList<>();
 
         if (UrlUtils.isAiPrompt(query)) {
             query = query.substring(3).trim();
         }
         query = query.replace("\n", " ").replace("\r", " ").replace("\"", "'");
-        String json = JSON;
-        String secret = config.getDalle3secret();
+        String json = JSON_DALLE3;
+        String secret = config.getDalle2secret();
+        boolean dalle3Mode=true;
         if (query.contains(secret)) {
             query = query.replace(secret, " ").trim();
-            json = JSON_DALLE3;
-            Logger.log("Secret DALL-E3 mode activated!");
+            json = JSON_DALLE2;
+            dalle3Mode=false;
+            Logger.log("Secret fallback to DALL-E2 activated!");
         }
         json = json.replace("{0}", query);
+
+        if (squared) {
+            json = json.replace("{1}", "1024x1024");
+        } else {
+            json = json.replace("{1}", "1792x1024");
+        }
 
         Logger.log("AI query: "+query);
 

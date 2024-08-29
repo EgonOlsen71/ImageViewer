@@ -44,7 +44,6 @@ public class RandomImageGenerator extends HttpServlet {
 
         PrintWriter pw = response.getWriter();
 
-        query+=".(3)";
         try {
             Logger.log("Query is: "+query);
             List<String> images = AiImageGenerator.createImages(query);
