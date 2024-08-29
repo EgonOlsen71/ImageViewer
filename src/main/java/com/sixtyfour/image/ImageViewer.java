@@ -64,8 +64,10 @@ public class ImageViewer extends HttpServlet {
         }
 
         String file = URLDecoder.decode(request.getParameter("file"), StandardCharsets.UTF_8).trim();
+        boolean needsCropping = false;
 
         if (URL_SHORTENER.containsKey(file)) {
+            needsCropping = file.contains("ai=1");
             Logger.log("Replacing URL " + file + "with " + URL_SHORTENER.get(file));
             file = URL_SHORTENER.get(file);
         }
@@ -97,7 +99,7 @@ public class ImageViewer extends HttpServlet {
         String key = ImageCache.getKey(file, dithy, keepRatio);
         Blob blob = ImageCache.get(key);
         if (blob == null) {
-            blob = convert(file, path, os, dithy, keepRatio);
+            blob = convert(file, path, os, dithy, keepRatio, needsCropping);
             if (blob == null) {
                 // No image but a file list...
                 return;
@@ -132,7 +134,7 @@ public class ImageViewer extends HttpServlet {
         System.setProperty("https.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
     }
 
-    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio) {
+    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio, boolean needsCropping) {
         Blob blob;
         boolean directPdfLink = file.startsWith("page://");
         boolean maybeUrl = UrlUtils.maybeUrl(file);
@@ -151,7 +153,7 @@ public class ImageViewer extends HttpServlet {
                 if (lfile.contains(".pdf")) {
                     Logger.log("PDF detected, rendering it...");
                     List<String> rendered = new PdfRenderer().renderPages(file, path);
-                    transmitImageReferences(os, rendered);
+                    transmitImageReferences(os, rendered, null);
                 } else {
                     if (maybeUrl) {
                         Logger.log("Trying to extract images from page...");
@@ -209,7 +211,7 @@ public class ImageViewer extends HttpServlet {
         String targetFileName = fileName + ".koa";
         File targetBin = new File(targetFileName);
         try {
-            KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, false);
+            KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, needsCropping, false);
         } catch (Exception e) {
             delete(targetBin);
             delete(bin);
@@ -274,7 +276,7 @@ public class ImageViewer extends HttpServlet {
                 images = GoogleImageExtractor.searchImages(query);
             }
             if (mode == ImageMode.AI) {
-                images = AiImageGenerator.createImages(query);
+                images = AiImageGenerator.createImages(query, false);
             }
         } catch (OpenAiException e) {
             Logger.log("Invalid query: " + query, e);
@@ -298,10 +300,10 @@ public class ImageViewer extends HttpServlet {
             return;
         }
 
-        transmitImageReferences(os, images);
+        transmitImageReferences(os, images, mode);
     }
 
-    private void transmitImageReferences(ServletOutputStream os, List<String> images) {
+    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode) {
         if (images == null) {
             printError(os, "No valid images found!");
             return;
@@ -312,7 +314,7 @@ public class ImageViewer extends HttpServlet {
             if (image.length() < 170) {
                 continue;
             }
-            String newImage = "https://jpct.de/" + UUID.randomUUID() + ".short";
+            String newImage = "https://jpct.de/" + UUID.randomUUID() + ".short"+(mode==ImageMode.AI?"ai=1":"");
             Logger.log("URL too long, transmitting a short form instead!");
             URL_SHORTENER.put(newImage, image);
             images.set(i, newImage);
