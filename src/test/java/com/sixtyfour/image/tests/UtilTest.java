@@ -11,5 +11,11 @@ public class UtilTest {
         String url ="http://toller-test.de/ich bin ein bild.jpg";
         url = UrlUtils.encode(url);
         System.out.println(url);
+
+        url = "ai:hallo";
+        System.out.println(UrlUtils.fixFilename(url));
+
+        url = "ai  :hallo";
+        System.out.println(UrlUtils.fixFilename(url));
     }
 }

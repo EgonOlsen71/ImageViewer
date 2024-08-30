@@ -22,6 +22,10 @@ public class UrlUtils {
         }
     }
 
+    public static String fixFilename(String file) {
+        return file.replaceAll("\\b(ai|ki)\\s+:", "ai:");
+    }
+
     public static boolean isAiPrompt(String url) {
         if (url==null) {
             return false;

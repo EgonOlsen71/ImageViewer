@@ -147,6 +147,8 @@ public class ImageViewer extends HttpServlet {
                 file = "https://" + file;
             }
 
+            file = UrlUtils.fixFilename(file);
+
             String lfile = file.toLowerCase();
             if (!lfile.contains(".png") && !lfile.contains(".jpg") && !lfile.contains(".jpeg") && !lfile.contains(".webp")) {
                 Logger.log("Unsupported image type: " + file);
