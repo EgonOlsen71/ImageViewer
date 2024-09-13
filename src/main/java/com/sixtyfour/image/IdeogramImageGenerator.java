@@ -104,6 +104,20 @@ public class IdeogramImageGenerator implements ImageGenerator {
 
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> map = mapper.readValue(resp, Map.class);
+
+        if (map.containsKey("error")) {
+            try {
+                String msg = map.get("error").toString();
+                Logger.log("Ideogram returned error: " + msg);
+                throw new AiException(msg);
+            } catch (AiException oe) {
+                throw oe;
+            } catch(Exception e) {
+                Logger.log("Ideogram returned: " + resp);
+                throw new AiException("Failed to access Ideogram!");
+            }
+        }
+
         if (!map.containsKey("data")) {
             Logger.log("Ideogram returned: " + resp);
             throw new AiException("Failed to access Ideogram!");

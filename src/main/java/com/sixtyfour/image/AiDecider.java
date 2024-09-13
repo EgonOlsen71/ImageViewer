@@ -1,9 +1,9 @@
 package com.sixtyfour.image;
 
-import java.util.List;
+import java.util.*;
 
 /**
- * Decides, which AI to use, uses it and returns the resuling image.
+ * Decides, which AI to use, uses it and returns the resulting image.
  *
  * @author EgonOlsen
  */

@@ -38,6 +38,14 @@ public class ImageViewer extends HttpServlet {
         }
     };
 
+    // Prevents AI requests for the same query to come too close after each other!
+    private final static LinkedHashMap<String, Blob> AI_REQUEST_CACHE = new LinkedHashMap<>() {
+        protected boolean removeEldestEntry(Map.Entry eldest) {
+            Map.Entry<String, Blob> entry = eldest;
+            return System.currentTimeMillis() - entry.getValue().getTime() > 1000 * 20 || this.size() > 1000;
+        }
+    };
+
     public ImageViewer() {
         // TODO Auto-generated constructor stub
     }
@@ -70,7 +78,7 @@ public class ImageViewer extends HttpServlet {
         if (URL_SHORTENER.containsKey(file)) {
             needsCropping = file.contains("ai=1");
             d42Mode = file.contains("d42=1");
-            Logger.log("Replacing URL " + file + "with " + URL_SHORTENER.get(file));
+            Logger.log("Replacing URL " + file + " with " + URL_SHORTENER.get(file));
             file = URL_SHORTENER.get(file);
         }
 
@@ -157,14 +165,14 @@ public class ImageViewer extends HttpServlet {
                 if (lfile.contains(".pdf")) {
                     Logger.log("PDF detected, rendering it...");
                     List<String> rendered = new PdfRenderer().renderPages(file, path);
-                    transmitImageReferences(os, rendered, null, false);
+                    transmitImageReferences(os, rendered, null, false, null);
                 } else {
                     if (maybeUrl) {
                         Logger.log("Trying to extract images from page...");
                         extractImages(file, os, ImageMode.WEB);
                     } else {
                         if (UrlUtils.isAiPrompt(lfile)) {
-                            Logger.log("Generating images with OpenAI...");
+                            Logger.log("Generating images with AI...");
                             extractImages(file, os, ImageMode.AI);
                         } else {
                             Logger.log("Searching for images on Google...");
@@ -287,7 +295,21 @@ public class ImageViewer extends HttpServlet {
                     d42Mode = true;
                     Logger.log("D42 mode enabled!");
                 }
-                images = AiDecider.generateImages(query, d42Mode);
+                Blob blobby = AI_REQUEST_CACHE.get(query);
+                images = null;
+                if (blobby != null) {
+                    Logger.log("Found entry for "+query+" in request cache ("+AI_REQUEST_CACHE.size()+"), age "+blobby.getAge()+" seconds!");
+                    if (blobby.isOld(20000)) {
+                        Logger.log("...but it's too old!");
+                        AI_REQUEST_CACHE.remove(query);
+                    } else {
+                        images = blobby.getImages();
+                    }
+                }
+                if (images == null) {
+                    Logger.log("Found no entry for "+query+" in request cache!");
+                    images = AiDecider.generateImages(query, d42Mode);
+                }
             }
         } catch (AiException e) {
             Logger.log("Invalid query: " + query, e);
@@ -311,13 +333,22 @@ public class ImageViewer extends HttpServlet {
             return;
         }
 
-        transmitImageReferences(os, images, mode, d42Mode);
+        transmitImageReferences(os, images, mode, d42Mode, query);
     }
 
-    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode, boolean d42Mode) {
+    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode, boolean d42Mode, String query) {
         if (images == null) {
             printError(os, "No valid images found!");
             return;
+        }
+
+        if (mode == ImageMode.AI) {
+            Logger.log("Storing images as result for "+query+" in request cache!");
+            if (!AI_REQUEST_CACHE.containsKey(query)) {
+                AI_REQUEST_CACHE.put(query, new Blob(images));
+            } else {
+                Logger.log("Request cache already contains an entry for "+query);
+            }
         }
 
         for (int i = 0; i < images.size(); i++) {
