@@ -352,6 +352,7 @@
 58032 if a%>127 then if a%<193 then 58020
 58034 if a%>218 then 58020
 58060 print chr$(20);:if a%=13 then a$=""
+58062 if a%=34 then a$=chr$(39)
 58065 if a%=95 then a$=left$(chr$(164), -(len(b$)<>0))
 58070 b$=b$+a$:print a$;:if len(b$)<160 then if a%<>13 then 58015
 58080 return
