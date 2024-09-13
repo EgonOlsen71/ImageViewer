@@ -16,7 +16,8 @@ public class UrlUtils {
                 return url;
             }
             //@todo improve this hack...
-            return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("%3A", ":").replace("%2F", "/").replace("%3B", ";").replace("%26", "&").replace("%3F", "?").replace("+", "%20");
+            return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("%3A", ":").replace("%2F", "/").replace("%3D", "=")
+                    .replace("%3B", ";").replace("%26", "&").replace("%3F", "?").replace("+", "%20");
         } catch (Exception e) {
             return url;
         }

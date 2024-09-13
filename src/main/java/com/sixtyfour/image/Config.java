@@ -12,9 +12,9 @@ public class Config {
 
     private String openApiKey;
 
-    private String cx;
+    private String ideogramApiKey;
 
-    private String dalle2secret;
+    private String cx;
 
     private String generatorKey;
 
@@ -25,7 +25,7 @@ public class Config {
             cx = props.getProperty("cx");
             googleApiKey = props.getProperty("key");
             openApiKey = props.getProperty("openapikey");
-            dalle2secret =props.getProperty("dalle2secret");
+            ideogramApiKey = props.getProperty("ideogramapikey");
             generatorKey = props.getProperty("generator.key");
         } catch(Exception e)  {
             Logger.log("Failed to load Properties!", e);
@@ -41,12 +41,12 @@ public class Config {
         return openApiKey;
     }
 
-    public String getCx() {
-        return cx;
+    public String getIdeogramApiKey() {
+        return ideogramApiKey;
     }
 
-    public String getDalle2secret() {
-        return dalle2secret;
+    public String getCx() {
+        return cx;
     }
 
     public String getGeneratorKey() {

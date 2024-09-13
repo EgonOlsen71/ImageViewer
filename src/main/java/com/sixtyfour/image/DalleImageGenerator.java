@@ -15,18 +15,20 @@ import java.util.Map;
 /**
  * Generates images using OpenAI/DALL-E 3
  */
-public class AiImageGenerator {
+public class DalleImageGenerator implements ImageGenerator {
 
     private final static String BASE_URL = "https://api.openai.com/v1/images/generations";
     private final static String JSON_DALLE2 = "{\"model\":\"dall-e-2\",\"prompt\":\"{0}\",\"n\": 2,\"size\":\"256x256\" }";
     private final static String JSON_DALLE3 = "{\"model\":\"dall-e-3\",\"prompt\":\"{0}\",\"n\": 1,\"size\":\"{1}\" }";
     private static Config config = new Config();
+    private String DALL_E_2_MODE = "(2)";
 
-    public static List<String> createImages(String query) throws Exception {
-        return createImages(query, true);
+    public List<String> createImages(String query) throws Exception {
+        return createImages(query, ImageDimensions.SQUARE);
     }
 
-    public static List<String> createImages(String query, boolean squared) throws Exception {
+    public List<String> createImages(String query, ImageDimensions dimension) throws Exception {
+        Logger.log("Using Dall-E for image generation...");
         List<String> ret = new ArrayList<>();
 
         if (UrlUtils.isAiPrompt(query)) {
@@ -34,11 +36,10 @@ public class AiImageGenerator {
         }
         query = query.replace("\n", " ").replace("\r", " ").replace("\"", "'");
         String json = JSON_DALLE3;
-        String secret = config.getDalle2secret();
-        if (query.contains(secret)) {
-            query = query.replace(secret, " ").trim();
+        if (query.contains(DALL_E_2_MODE)) {
+            query = query.replace(DALL_E_2_MODE, " ").trim();
             json = JSON_DALLE2;
-            Logger.log("Secret fallback to DALL-E2 activated!");
+            Logger.log("Using forced DALL-E2 mode!");
         }
 
         if (query.contains("(random)")) {
@@ -48,7 +49,7 @@ public class AiImageGenerator {
 
         json = json.replace("{0}", query);
 
-        if (squared) {
+        if (dimension == ImageDimensions.SQUARE) {
             json = json.replace("{1}", "1024x1024");
         } else {
             json = json.replace("{1}", "1792x1024");
@@ -89,7 +90,7 @@ public class AiImageGenerator {
 
         if (resp==null || resp.length()==0) {
             Logger.log("No images generated!?");
-            throw new OpenAiException("AI timeout!");
+            throw new AiException("AI timeout!");
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -98,12 +99,12 @@ public class AiImageGenerator {
             try {
                 String msg = ((Map) map.get("error")).get("code").toString();
                 Logger.log("OpenAI returned error: " + msg);
-                throw new OpenAiException(msg);
-            } catch (OpenAiException oe) {
+                throw new AiException(msg);
+            } catch (AiException oe) {
                 throw oe;
             } catch(Exception e) {
                 Logger.log("OpenAI returned: " + resp);
-                throw new OpenAiException("Failed to access OpenAI!");
+                throw new AiException("Failed to access OpenAI!");
             }
         }
 

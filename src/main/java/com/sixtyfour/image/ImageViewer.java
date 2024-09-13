@@ -65,9 +65,11 @@ public class ImageViewer extends HttpServlet {
 
         String file = URLDecoder.decode(request.getParameter("file"), StandardCharsets.UTF_8).trim();
         boolean needsCropping = false;
+        boolean d42Mode = false;
 
         if (URL_SHORTENER.containsKey(file)) {
             needsCropping = file.contains("ai=1");
+            d42Mode = file.contains("d42=1");
             Logger.log("Replacing URL " + file + "with " + URL_SHORTENER.get(file));
             file = URL_SHORTENER.get(file);
         }
@@ -99,7 +101,7 @@ public class ImageViewer extends HttpServlet {
         String key = ImageCache.getKey(file, dithy, keepRatio);
         Blob blob = ImageCache.get(key);
         if (blob == null) {
-            blob = convert(file, path, os, dithy, keepRatio, needsCropping);
+            blob = convert(file, path, os, dithy, keepRatio, needsCropping, d42Mode);
             if (blob == null) {
                 // No image but a file list...
                 return;
@@ -134,7 +136,7 @@ public class ImageViewer extends HttpServlet {
         System.setProperty("https.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
     }
 
-    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio, boolean needsCropping) {
+    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio, boolean needsCropping, boolean d42Mode) {
         Blob blob;
         boolean directPdfLink = file.startsWith("page://");
         boolean maybeUrl = UrlUtils.maybeUrl(file);
@@ -155,7 +157,7 @@ public class ImageViewer extends HttpServlet {
                 if (lfile.contains(".pdf")) {
                     Logger.log("PDF detected, rendering it...");
                     List<String> rendered = new PdfRenderer().renderPages(file, path);
-                    transmitImageReferences(os, rendered, null);
+                    transmitImageReferences(os, rendered, null, false);
                 } else {
                     if (maybeUrl) {
                         Logger.log("Trying to extract images from page...");
@@ -213,7 +215,8 @@ public class ImageViewer extends HttpServlet {
         String targetFileName = fileName + ".koa";
         File targetBin = new File(targetFileName);
         try {
-            KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, needsCropping, false);
+            boolean d42mode = false;
+            KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, needsCropping, d42Mode, false);
         } catch (Exception e) {
             delete(targetBin);
             delete(bin);
@@ -255,6 +258,7 @@ public class ImageViewer extends HttpServlet {
 
     private void extractImages(String query, ServletOutputStream os, ImageMode mode) {
         List<String> images = null;
+        boolean d42Mode = false;
         try {
             if (mode==ImageMode.WEB) {
                 ImageExtractor iex = new ImageExtractor();
@@ -278,9 +282,14 @@ public class ImageViewer extends HttpServlet {
                 images = GoogleImageExtractor.searchImages(query);
             }
             if (mode == ImageMode.AI) {
-                images = AiImageGenerator.createImages(query, false);
+                if (query.contains("(d42)") || query.contains("(D42)")) {
+                    query = query.replace("(d42)", " ").replace("(D42)", " ").trim();
+                    d42Mode = true;
+                    Logger.log("D42 mode enabled!");
+                }
+                images = AiDecider.generateImages(query, d42Mode);
             }
-        } catch (OpenAiException e) {
+        } catch (AiException e) {
             Logger.log("Invalid query: " + query, e);
             printError(os, e.getMessage().replace("_", " "));
             return;
@@ -302,10 +311,10 @@ public class ImageViewer extends HttpServlet {
             return;
         }
 
-        transmitImageReferences(os, images, mode);
+        transmitImageReferences(os, images, mode, d42Mode);
     }
 
-    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode) {
+    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode, boolean d42Mode) {
         if (images == null) {
             printError(os, "No valid images found!");
             return;
@@ -313,10 +322,16 @@ public class ImageViewer extends HttpServlet {
 
         for (int i = 0; i < images.size(); i++) {
             String image = images.get(i);
-            if (image.length() < 170) {
+            if (image.length() < 170 && mode != ImageMode.AI) {
                 continue;
             }
-            String newImage = "https://jpct.de/" + UUID.randomUUID() + ".short"+(mode==ImageMode.AI?"ai=1":"");
+            String postFix = "";
+            if (d42Mode) {
+                postFix = "d42=1";
+            } else if (mode==ImageMode.AI) {
+                postFix = "ai=1";
+            }
+            String newImage = "https://jpct.de/" + UUID.randomUUID() + ".short"+postFix;
             Logger.log("URL too long, transmitting a short form instead!");
             URL_SHORTENER.put(newImage, image);
             images.set(i, newImage);
