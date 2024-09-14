@@ -127,6 +127,10 @@ public class IdeogramImageGenerator implements ImageGenerator {
         for (Map entry:data) {
             String link = entry.get("url").toString();
             Logger.log("Image link: "+link);
+            if (link == null || link.isEmpty()) {
+                Logger.log("Empty image link returned!");
+                throw new AiException("No image generated, most likely a content policy violation!");
+            }
             ret.add(link);
         }
 
