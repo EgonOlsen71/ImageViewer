@@ -326,8 +326,8 @@
 57027 print "If you enter a single word or sentence,"
 57028 print "the first 10 results of an image search"
 57029 print "will be returned.{down}"
-57030 print "If you start with ai:, you get two ai"
-57031 print "generated images, e.g. ai:a sleeping cat"
+57030 print "If you start with ai:, you get an ai"
+57031 print "generated image, e.g. ai:a sleeping cat":print
 57037 print "Type {95} for underscore, RETURN to"
 57038 print "repeat the last URL and x to exit"
 57040 print "the program!{2*down}"

@@ -23,7 +23,7 @@ public class IdeogramImageGenerator implements ImageGenerator {
             "    \"prompt\": \"{0}\",\n" +
             "    \"resolution\": \"{1}\",\n" +
             "    \"model\": \"V_2_TURBO\",\n" +
-            "    \"magic_prompt_option\": \"AUTO\"\n" +
+            "    \"magic_prompt_option\": \"{2}\"\n" +
             "  }\n" +
             "}";
     private static Config config = new Config();
@@ -46,6 +46,16 @@ public class IdeogramImageGenerator implements ImageGenerator {
             query = WordList.generateWordSoup(WordList.getRandomWord());
             Logger.log("Generated ai query is: "+query);
         }
+
+        //AUTO""
+        if (query.contains("(mpoff)")) {
+            Logger.log("Magic prompt set to OFF!");
+            json = json.replace("{2}", "OFF");
+        } else {
+            Logger.log("Magic prompt set to AUTO!");
+            json = json.replace("{2}", "AUTO");
+        }
+        query = query.replace("(mpoff)", " ").trim();
 
         json = json.replace("{0}", query);
 
@@ -126,6 +136,8 @@ public class IdeogramImageGenerator implements ImageGenerator {
         List<Map> data = (List<Map>) map.get("data");
         for (Map entry:data) {
             String link = entry.get("url").toString();
+            String prompt = entry.get("prompt").toString();
+            Logger.log("Final prompt: "+prompt);
             Logger.log("Image link: "+link);
             if (link == null || link.isEmpty()) {
                 Logger.log("Empty image link returned!");

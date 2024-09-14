@@ -24,7 +24,7 @@ public class AiImageGeneratorTest {
         // line art, sketch drawing with black ink, think lines, anime, very low detail, high contrast, pixel art, white background!", ImageDimensions.SCREEN);
         //images.forEach(System.out::println);
 
-        List<String> images = new IdeogramImageGenerator().createImages("ai:a Commodore 64 in the forest", ImageDimensions.SCREEN);
+        List<String> images = new IdeogramImageGenerator().createImages("ai:(mpoff)a Commodore 64 in the forest", ImageDimensions.SCREEN);
         images.forEach(System.out::println);
     }
 
