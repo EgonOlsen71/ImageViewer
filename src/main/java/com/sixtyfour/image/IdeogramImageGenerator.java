@@ -22,14 +22,14 @@ public class IdeogramImageGenerator implements ImageGenerator {
             "  \"image_request\": {\n" +
             "    \"prompt\": \"{0}\",\n" +
             "    \"resolution\": \"{1}\",\n" +
-            "    \"model\": \"V_2_TURBO\",\n" +
+            "    \"model\": \"V_2A\",\n" +
             "    \"magic_prompt_option\": \"{2}\"\n" +
             "  }\n" +
             "}";
     private final static String JSON_REMIX ="{\n" +
             "    \"prompt\": \"{0}\",\n" +
             "    \"resolution\": \"{1}\",\n" +
-            "    \"model\": \"V_2_TURBO\",\n" +
+            "    \"model\": \"V_2A\",\n" +
             "    \"image_weight\": {3},\n" +
             "    \"magic_prompt_option\": \"{2}\"\n" +
             "  }";
