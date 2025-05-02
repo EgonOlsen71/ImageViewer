@@ -13,7 +13,7 @@ public class AiImageGeneratorTest {
     public static void main(String[] args) throws Exception {
 
         testImageGenerator();
-        // testImageRemix();
+         testImageRemix();
 
 /*
         List<String> images = AiImageGenerator.createImages("ai:(random)", false);
@@ -35,8 +35,8 @@ public class AiImageGeneratorTest {
         //List<String> images = new DalleImageGenerator().createImages("ai:princess zelda get captured by an evil wizard, b/w, comic panel,
         // line art, sketch drawing with black ink, think lines, anime, very low detail, high contrast, pixel art, white background!", ImageDimensions.SCREEN);
         //images.forEach(System.out::println);
-        byte[] image = Files.readAllBytes(new File("E:\\tmp\\Title.jpg").toPath());
-        List<String> images = new IdeogramImageGenerator().createImages("ai:A 3d rendered, Mario like video game character looks out of a console's cartridge slot!", image, 80, ImageDimensions.SCREEN);
+        byte[] image = Files.readAllBytes(new File("K:\\Video\\Retro\\Spiele-Sonderheft 2\\Ttitle_tmp.jpg").toPath());
+        List<String> images = new IdeogramImageGenerator().createImages("ai:A comic character named 'Star Killer' broke a hole into a table and now looks through it to a magazine. Behind him are stars visible. The hole is basically a portal to another universe..", image, 70, ImageDimensions.SCREEN);
         images.forEach(System.out::println);
     }
 
