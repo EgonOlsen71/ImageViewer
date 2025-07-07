@@ -40,8 +40,8 @@ public class ImageCache {
         return data;
     }
 
-    public static String getKey(String url, float dither, boolean keepRatio) {
-        return url+"_"+dither+"_"+keepRatio;
+    public static String getKey(String url, float dither, boolean keepRatio, boolean hires) {
+        return url+"_"+dither+"_"+keepRatio+"_"+hires;
     }
 
 }

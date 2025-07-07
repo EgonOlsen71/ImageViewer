@@ -1,6 +1,6 @@
 0 rem Remote Image Viewer / EgonOlsen71 / 2024
 2 tv%=255:tt%=64:bu=24374:ui=49152:ur=49155:us=49152+18:ug=49152+21:uc=49152+24
-3 ll$=chr$(0)
+3 ll$=chr$(0):lr%=-1
 5 gosub 1000:gosub 56500:gosub 62000:gosub 45800
 10 gosub 57000
 20 gosub 30000:if iu$="" then 10
@@ -56,7 +56,8 @@
 21100 poke 782,3: poke 781,64:poke 780,len(t$):sys 65469:poke 780,1
 21110 poke 781,dn%:poke 782,1:sys 65466
 21120 poke 254,96:poke 253,0:poke 780,253:poke 782,135
-21130 poke 781,17:sys 65496
+21130 poke 781,17:if lr%=0 then poke 782,132:poke 781,0
+21135 sys 65496
 21140 if (peek(783) and  1) or (st and  191) then gosub 21500
 21150 return
 
@@ -79,12 +80,15 @@
 30015 print "Image URL: ";:poke 646,15:print iu$;"{down}":poke 646,1
 30020 print "F1 - Dithering: ";ds$(ds%);"%"
 30030 print "F3 - Keep aspect ratio: ";bv$(ar%)
+30035 print "F5 - Graphics mode: ";:if lr% then print "Multicolor":goto 30045
+30036 print "Hires"
 30045 print "F8 - Select new image{down}"
 30046 print "F7/RETURN - Load image"
 30050 get a$:if a$="" then 30050
 30060 a%=asc(a$):if a%=133 then gosub 31000:goto 30000
 30070 if a%=134 then gosub 31500:goto 30000
 30080 if a%=136 or a%=13 then return
+30083 if a%=135 then lr%=not lr%:goto 30000
 30085 if a%=88 then 60000
 30088 if a%=73 then gosub 23000:goto 30000
 30090 if a%=140 or a%=95 then iu$="":return
@@ -192,6 +196,7 @@
 
 44500 rem contruct download url
 44510 ur$=gu$+"ImageViewer?file="+iu$+"&dither="+ds$(ds%)
+44512 if lr%=0 then ur$=ur$+"&hi=1"
 44515 if len(ur$)<245 then if ar% then ur$=ur$+"&ar=true"
 44530 return
 
@@ -246,17 +251,22 @@
 52000 rem display loaded image
 52005 if dr%<>0 then a%=157:if dr%=1 then a%=29
 52006 if dr%<>0 then 52153
+52007 if lr%=0 then 52022
 52008 rem [ ldx #251 ]
 52010 rem [loopy; lda 32575,x; sta 23551,x]
 52012 rem [lda 32825,x; sta 23801,x; lda 33075,x; sta 24051,x]
 52014 rem [lda 33325,x; sta 24301,x;]
 52016 rem [lda 33575,x; sta 55295,x; lda 33825,x; sta 55545,x]
-52018rem [lda 34075,x; sta 55795,x; lda 34325,x; sta 56045,x]
+52018 rem [lda 34075,x; sta 55795,x; lda 34325,x; sta 56045,x]
 52020 rem [dex; bne loopy]
+52021 goto 52030
+52022 rem [ ldx #251; loopy2; lda 32767,x; sta 23551,x]
+52023 rem [ lda 33017,x; sta 23801,x; lda 33267,x; sta 24051,x]
+52024 rem [ lda 33517,x; sta 24301,x; dex; bne loopy2]
 52030 poke 53265,peek(53265) and 239
 52040 poke 198,0:poke 56576,(peek(56576) and 252) or 2
 52050 ol%=peek(53272):poke 53272,120
-52060 poke 53270,216
+52060 if lr% then poke 53270,216
 52070 poke 53280,peek(34576)
 52080 poke 53281,peek(34576)
 52085 if peek(53266)<200 then 52085

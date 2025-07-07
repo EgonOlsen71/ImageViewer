@@ -1,5 +1,7 @@
 package com.sixtyfour.image;
 
+import com.sixtyfour.petscii.HiEddiConverter;
+import com.sixtyfour.petscii.HiresConverter;
 import com.sixtyfour.petscii.KoalaConverter;
 import com.sixtyfour.petscii.Vic2Colors;
 
@@ -82,6 +84,12 @@ public class ImageViewer extends HttpServlet {
             file = URL_SHORTENER.get(file);
         }
 
+        boolean hires = request.getParameter("hi")!=null && request.getParameter("hi").equals("1");
+
+        if (hires) {
+            Logger.log("Hires mode enabled!");
+        }
+
         if (file.startsWith("empty:")) {
             Logger.log("Sending empty reply!");
             os.flush();
@@ -106,10 +114,10 @@ public class ImageViewer extends HttpServlet {
         }
         Logger.log("Dithering is set to " + dithy);
 
-        String key = ImageCache.getKey(file, dithy, keepRatio);
+        String key = ImageCache.getKey(file, dithy, keepRatio, hires);
         Blob blob = ImageCache.get(key);
         if (blob == null) {
-            blob = convert(file, path, os, dithy, keepRatio, needsCropping, d42Mode);
+            blob = convert(file, path, os, dithy, keepRatio, needsCropping, d42Mode, hires);
             if (blob == null) {
                 // No image but a file list...
                 return;
@@ -144,7 +152,7 @@ public class ImageViewer extends HttpServlet {
         System.setProperty("https.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
     }
 
-    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio, boolean needsCropping, boolean d42Mode) {
+    private Blob convert(String file, String path, ServletOutputStream os, float dithy, boolean keepRatio, boolean needsCropping, boolean d42Mode, boolean hires) {
         Blob blob;
         boolean directPdfLink = file.startsWith("page://");
         boolean maybeUrl = UrlUtils.maybeUrl(file);
@@ -165,18 +173,18 @@ public class ImageViewer extends HttpServlet {
                 if (lfile.contains(".pdf")) {
                     Logger.log("PDF detected, rendering it...");
                     List<String> rendered = new PdfRenderer().renderPages(file, path);
-                    transmitImageReferences(os, rendered, null, false, null);
+                    transmitImageReferences(os, rendered, null, false, hires, null);
                 } else {
                     if (maybeUrl) {
                         Logger.log("Trying to extract images from page...");
-                        extractImages(file, os, ImageMode.WEB);
+                        extractImages(file, os, ImageMode.WEB, hires);
                     } else {
                         if (UrlUtils.isAiPrompt(lfile)) {
                             Logger.log("Generating images with AI...");
-                            extractImages(file, os, ImageMode.AI);
+                            extractImages(file, os, ImageMode.AI, hires);
                         } else {
                             Logger.log("Searching for images on Google...");
-                            extractImages(file, os, ImageMode.SEARCH);
+                            extractImages(file, os, ImageMode.SEARCH, hires);
                         }
                     }
                 }
@@ -223,8 +231,13 @@ public class ImageViewer extends HttpServlet {
         String targetFileName = fileName + ".koa";
         File targetBin = new File(targetFileName);
         try {
-            boolean d42mode = false;
-            KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, needsCropping, d42Mode, false);
+            if (hires) {
+                Logger.log("Hires image conversion ...");
+                HiEddiConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, needsCropping, d42Mode, false);
+            } else {
+                Logger.log("Multicolor image conversion ...");
+                KoalaConverter.convert(fileName, targetFileName, new Vic2Colors(), 1, dithy, keepRatio, needsCropping, d42Mode, false);
+            }
         } catch (Exception e) {
             delete(targetBin);
             delete(bin);
@@ -264,7 +277,7 @@ public class ImageViewer extends HttpServlet {
         return lFile.substring(file.lastIndexOf("."));
     }
 
-    private void extractImages(String query, ServletOutputStream os, ImageMode mode) {
+    private void extractImages(String query, ServletOutputStream os, ImageMode mode, boolean hires) {
         List<String> images = null;
         boolean d42Mode = false;
         try {
@@ -289,6 +302,7 @@ public class ImageViewer extends HttpServlet {
             if (mode == ImageMode.SEARCH) {
                 images = GoogleImageExtractor.searchImages(query);
             }
+
             if (mode == ImageMode.AI) {
                 if (query.contains("(d42)") || query.contains("(D42)")) {
                     query = query.replace("(d42)", " ").replace("(D42)", " ").trim();
@@ -333,10 +347,10 @@ public class ImageViewer extends HttpServlet {
             return;
         }
 
-        transmitImageReferences(os, images, mode, d42Mode, query);
+        transmitImageReferences(os, images, mode, d42Mode, hires, query);
     }
 
-    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode, boolean d42Mode, String query) {
+    private void transmitImageReferences(ServletOutputStream os, List<String> images, ImageMode mode, boolean d42Mode, boolean hires, String query) {
         if (images == null) {
             printError(os, "No valid images found!");
             return;
@@ -362,6 +376,10 @@ public class ImageViewer extends HttpServlet {
             } else if (mode==ImageMode.AI) {
                 postFix = "ai=1";
             }
+            if (hires) {
+                postFix+="hi=1";
+            }
+
             String newImage = "https://jpct.de/" + UUID.randomUUID() + ".short"+postFix;
             Logger.log("URL too long, transmitting a short form instead!");
             URL_SHORTENER.put(newImage, image);
