@@ -138,17 +138,15 @@
 40840 return
 
 41500 rem send and receive data
-41505 tc%=0
 41510 gosub 55100
 41520 gosub 41800
 41550 gosub 46000:if le% then gosub 56200
 41560 br%=peek(169)+256*peek(170)
 41570 if br%=0 then gosub 41600
-41575 if tc%=1 then goto 41510: rem repeat one time!
 41580 return
 
 41600 rem handle empty reply
-41605 tc%=tc%+1:if tc%=1 then return
+41605 tc%=tc%+1:if tc%=1 then print: print"Please be patient...":return
 41610 print:print "Empty reply from server!?"
 41620 gosub 10000
 41630 iu$="":er%=1:return
@@ -193,7 +191,8 @@
 44015 print "Slideshow active,";sm%;"sec. delay!"
 44020 poke 646,1
 44025 gosub 44500
-44030 gosub 46500:gosub 41500:if iu$="" then er%=1:return
+44030 gosub 46500:tc%=0:gosub 41500:if tc%=1 then 44020
+44035 if iu$="" then er%=1:return
 44050 gosub 45000
 44060 return
 
@@ -216,7 +215,7 @@
 45800 rem get actual ip
 45810 if len(gu$)<>0 then 45850
 45820 print chr$(147);"Getting remote address...":gosub 45700
-45830 gosub 46500:gosub 41500:of=0:gosub 42000
+45830 gosub 46500:tc%=100:gosub 41500:of=0:gosub 42000
 45840 gu$=mg$
 45850 print:print "Address: ";gu$:return
 
