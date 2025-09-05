@@ -138,14 +138,17 @@
 40840 return
 
 41500 rem send and receive data
+41505 tc%=0
 41510 gosub 55100
 41520 gosub 41800
 41550 gosub 46000:if le% then gosub 56200
 41560 br%=peek(169)+256*peek(170)
 41570 if br%=0 then gosub 41600
+41575 if tc%=1 then goto 41510: rem repeat one time!
 41580 return
 
 41600 rem handle empty reply
+41605 tc%=tc%+1:if tc%=1 then return
 41610 print:print "Empty reply from server!?"
 41620 gosub 10000
 41630 iu$="":er%=1:return
@@ -385,7 +388,7 @@
 
 62000 rem init
 62050 dim pu$(22):ou$="":ks%=1:ds%=1:ar%=1
-62060 gu$="":sm%=0
+62060 gu$="":sm%=0:tc%=0
 62065 dim bv$(1):bv$(0)="no":bv$(1)="yes"
 62070 dim ds$(4):ds$(0)="100":ds$(1)="50":ds$(2)="25":ds$(3)="10":ds$(4)="0"
 62080 dd%=0:i%=0:pu%=0:dr%=0: rem setup conversion table
